@@ -1,6 +1,7 @@
 package services
 
 import (
+	"backend/internal/api/config"
 	"backend/internal/api/constants"
 	"backend/internal/api/models"
 	"backend/internal/api/repository"
@@ -10,7 +11,7 @@ import (
 )
 
 type UserService interface {
-	CreateUser(ctx context.Context, username, email, name, password string) (any, error)
+	CreateUser(ctx context.Context, username, email, name, password, role string) (any, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*models.User, error)
 }
@@ -25,9 +26,9 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	}
 }
 
-func (us *userService) CreateUser(ctx context.Context, username, email, name, password string) (any, error) {
+func (us *userService) CreateUser(ctx context.Context, username, email, name, password, role string) (any, error) {
 
-	if !IsAdminCreationAllowed() {
+	if !config.IsAdminCreationAllowed() && role == constants.ROLE_ADMIN {
 		return nil, errors.New("admin creation is not allowed")
 	}
 
@@ -35,7 +36,7 @@ func (us *userService) CreateUser(ctx context.Context, username, email, name, pa
 		Username: username,
 		Email:    email,
 		Name:     name,
-		Role:     constants.ROLE_ADMIN,
+		Role:     role,
 	}
 
 	passwordHash, err := utils.HashPassword(password)

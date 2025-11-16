@@ -3,6 +3,7 @@ package config
 import (
 	"backend/pkg/env"
 	"backend/pkg/logger"
+	"sync"
 
 	"github.com/joho/godotenv"
 )
@@ -57,4 +58,21 @@ func (e *ENV) LoadEnv(Log logger.Logger) {
 
 	// Check ALLOW_ADMIN_CREATION env var
 	e.ALLOW_ADMIN_CREATION = env.GetOrDefault("ALLOW_ADMIN_CREATION", "false") == "true"
+}
+
+var (
+	instance *ENV
+	once     sync.Once
+)
+
+func GetEnvVars(Log logger.Logger) *ENV {
+	once.Do(func() {
+		instance = &ENV{}
+		instance.LoadEnv(Log)
+	})
+	return instance
+}
+
+func IsAdminCreationAllowed() bool {
+	return instance.ALLOW_ADMIN_CREATION
 }

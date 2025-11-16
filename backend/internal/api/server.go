@@ -18,7 +18,6 @@ import (
 )
 
 var Log logger.Logger
-var EnvVars config.ENV
 
 func StartServer() {
 	Log = logger.NewSimpleLogger()
@@ -26,10 +25,10 @@ func StartServer() {
 	Log.Info("Starting server...")
 
 	// Load environment variables
-	EnvVars.LoadEnv(Log)
+	envVars := config.GetEnvVars(Log)
 
 	// Initialize database connection
-	client, err := db.ConnectClient(EnvVars.DB_CONFIG.MONGO_URI)
+	client, err := db.ConnectClient(envVars.DB_CONFIG.MONGO_URI)
 	if err != nil {
 		Log.Error("Failed to connect to database: " + err.Error())
 		panic(err)
@@ -40,7 +39,7 @@ func StartServer() {
 	router := gin.Default()
 
 	server := http.Server{
-		Addr:    ":" + EnvVars.SERVER_ENV.PORT,
+		Addr:    ":" + envVars.SERVER_ENV.PORT,
 		Handler: router,
 	}
 
@@ -59,7 +58,7 @@ func StartServer() {
 
 	v1Group := apiGroup.Group("/v1")
 
-	blogRepo := repository.NewBlogRepository(client, EnvVars.DB_CONFIG.DB_NAME)
+	blogRepo := repository.NewBlogRepository(client, envVars.DB_CONFIG.DB_NAME)
 	blogService := services.NewBlogService(blogRepo)
 	blogHandler := handlers.NewBlogHandler(blogService)
 
@@ -73,13 +72,9 @@ func StartServer() {
 		})
 	})
 
-	Log.Info("Listening on port: " + EnvVars.SERVER_ENV.PORT)
+	Log.Info("Listening on port: " + envVars.SERVER_ENV.PORT)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		Log.Error("Server Failed to Start: " + err.Error())
 	}
 
-}
-
-func IsAdminCreationAllowed() bool {
-	return EnvVars.ALLOW_ADMIN_CREATION
 }
