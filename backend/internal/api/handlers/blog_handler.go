@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"backend/internal/api/dto"
 	"backend/internal/api/services"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,13 +19,29 @@ func NewBlogHandler(blogService services.BlogService) *BlogHandler {
 func (bh *BlogHandler) GetAllBlogs(c *gin.Context) {
 	blogs, err := bh.blogService.GetAllBlogs(c.Request.Context())
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to retrieve blogs"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve blogs"})
 		return
 	}
 
 	if len(blogs) == 0 {
-		c.JSON(404, gin.H{"message": "No blogs found"})
+		c.JSON(http.StatusNotFound, gin.H{"message": "No blogs found"})
 		return
 	}
-	c.JSON(200, blogs)
+	c.JSON(http.StatusOK, blogs)
+}
+
+func (bh *BlogHandler) CreateBlog(c *gin.Context) {
+	// Get Blog data from request body
+	var blogInput dto.CreateBlogRequest
+	if err := c.ShouldBindJSON(&blogInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	blogID, err := bh.blogService.CreateBlog(c.Request.Context(), &blogInput)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create blog"})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"id": blogID})
 }

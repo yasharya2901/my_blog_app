@@ -28,6 +28,7 @@ type JWT_CONFIG struct {
 	SECRET                   string
 	REFRESH_TOKEN_EXPIRES_IN string
 	ACCESS_TOKEN_EXPIRES_IN  string
+	ISSUER                   string
 }
 
 func (e *ENV) LoadEnv(Log logger.Logger) {
@@ -55,6 +56,7 @@ func (e *ENV) LoadEnv(Log logger.Logger) {
 	e.JWT_CONFIG.SECRET = jwtSecret
 	e.JWT_CONFIG.REFRESH_TOKEN_EXPIRES_IN = env.GetOrDefault("REFRESH_TOKEN_EXPIRES_IN", "7d")
 	e.JWT_CONFIG.ACCESS_TOKEN_EXPIRES_IN = env.GetOrDefault("ACCESS_TOKEN_EXPIRES_IN", "15m")
+	e.JWT_CONFIG.ISSUER = env.GetOrDefault("ISSUER", "my_blog_app")
 
 	// Check ALLOW_ADMIN_CREATION env var
 	e.ALLOW_ADMIN_CREATION = env.GetOrDefault("ALLOW_ADMIN_CREATION", "false") == "true"
@@ -75,4 +77,8 @@ func GetEnvVars(Log logger.Logger) *ENV {
 
 func IsAdminCreationAllowed() bool {
 	return instance.ALLOW_ADMIN_CREATION
+}
+
+func GetJWTConfig() JWT_CONFIG {
+	return instance.JWT_CONFIG
 }

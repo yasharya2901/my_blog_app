@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var Log logger.Logger
@@ -58,12 +59,12 @@ func StartServer() {
 
 	v1Group := apiGroup.Group("/v1")
 
-	blogRepo := repository.NewBlogRepository(client, envVars.DB_CONFIG.DB_NAME)
-	blogService := services.NewBlogService(blogRepo)
-	blogHandler := handlers.NewBlogHandler(blogService)
+	blogHandler := initializeBlogService(client, envVars.DB_CONFIG.DB_NAME)
+	userHandler := initializeUserService(client, envVars.DB_CONFIG.DB_NAME)
 
-	// Register blog routes
+	// Register routes
 	routes.RegisterBlogRoutes(v1Group, blogHandler)
+	routes.RegisterUserRoutes(v1Group, userHandler)
 
 	// Ping Endpoint
 	router.GET("/ping", func(c *gin.Context) {
@@ -77,4 +78,16 @@ func StartServer() {
 		Log.Error("Server Failed to Start: " + err.Error())
 	}
 
+}
+
+func initializeBlogService(client *mongo.Client, dbName string) *handlers.BlogHandler {
+	blogRepo := repository.NewBlogRepository(client, dbName)
+	blogService := services.NewBlogService(blogRepo)
+	return handlers.NewBlogHandler(blogService)
+}
+
+func initializeUserService(client *mongo.Client, dbName string) *handlers.UserHandler {
+	userRepo := repository.NewUserRepository(client, dbName)
+	userService := services.NewUserService(userRepo)
+	return handlers.NewUserHandler(userService)
 }
