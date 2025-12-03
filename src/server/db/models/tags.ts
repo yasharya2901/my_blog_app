@@ -1,4 +1,4 @@
-import { model, Model, models, Schema } from "mongoose";
+import { type Document, model, type Model, models, Schema } from "mongoose";
 import type { TagBase } from "../../types/Tag";
 
 export type TagDocument = TagBase & 
