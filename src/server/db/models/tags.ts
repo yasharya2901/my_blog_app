@@ -18,6 +18,14 @@ const TagSchema = new Schema<TagDocument>(
             trim: true,
             index: true,
         },
+        slug: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            index: true
+        },
         deletedAt: {
             type: Date,
             required: false,

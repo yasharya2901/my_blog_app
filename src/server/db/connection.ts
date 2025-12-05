@@ -25,7 +25,7 @@ if (!global._mongooseCache) {
     global._mongooseCache = cached
 }
 
-export async function connectionToDatabase(): Promise<typeof mongoose> {
+export async function getDbConnection(): Promise<typeof mongoose> {
     if (cached.conn) {
         return cached.conn;
     }
