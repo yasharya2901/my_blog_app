@@ -1,12 +1,6 @@
 import type { BlogWithTags } from "../types/Blog"
 import { LruCache } from "./lru";
 
-
-type BlogCacheEntry = {
-    data: BlogWithTags[];
-    expiresAt: number;
-}
-
 const DEFAULT_EXPIRY_HOUR = 6;
 const EXPIRY_HOURS = Number(process.env.EXPIRY_HOURS) || DEFAULT_EXPIRY_HOUR;
 const EXPIRY_HOURS_IN_MILLISECONDS = EXPIRY_HOURS * 60 * 60 * 1000;
@@ -17,15 +11,15 @@ const MAX_CACHE_SIZE = Number(process.env.MAX_CACHE_SIZE) || DEFAULT_MAX_CACHE_S
 const LIST_CACHE = new LruCache<BlogWithTags[]>(MAX_CACHE_SIZE);
 const SLUG_CACHE = new LruCache<BlogWithTags>(MAX_CACHE_SIZE);
 
-export function buildListKey(params: {
-    tagSlugs?: string[];
+type ListKeyParams = {
+    tagSlug?: string;
     limit: number;
     offset: number;
-}): string {
-    const tagsPart = params.tagSlugs?.slice().sort().join(",") || "all";
-    const sortPart = `publishedAt:desc`;
+}
 
-    return `blogs:list:${tagsPart}:sort=${sortPart}:limit=${params.limit}:offset=${params.offset}`;
+export function buildListKey(params: ListKeyParams): string {
+    
+    return `blogs:list:${params.tagSlug ?? "all"}:limit=${params.limit}:offset=${params.offset}`;
 }
 
 export function buildSlugKey(slug: string): string {
@@ -33,20 +27,13 @@ export function buildSlugKey(slug: string): string {
 }
 
 
-export function getCachedBlogList(params: {
-    tagSlugs?: string[];
-    limit: number;
-    offset: number;
-}): BlogWithTags[] | null {
+export function getCachedBlogList(params: ListKeyParams): BlogWithTags[] | null {
     const key = buildListKey(params);
     return LIST_CACHE.get(key);
 }
 
 
-export function setCachedBlogList(
-    params: {tagSlugs?: string[]; limit: number; offset: number},
-    blogs: BlogWithTags[]
-): void {
+export function setCachedBlogList(params: ListKeyParams, blogs: BlogWithTags[]): void {
     const key = buildListKey(params);
     LIST_CACHE.set(key, blogs, EXPIRY_HOURS_IN_MILLISECONDS);
 }
@@ -60,6 +47,9 @@ export function setCachedBlogBySlug(slug: string, blog: BlogWithTags): void {
     SLUG_CACHE.set(buildSlugKey(slug), blog, EXPIRY_HOURS_IN_MILLISECONDS);
 }
 
+export function resetCachedBlogBySlug(slug: string): void {
+    SLUG_CACHE.delete(slug);
+}
 
 export const invalidateCache = {
     list: LIST_CACHE.clear,
