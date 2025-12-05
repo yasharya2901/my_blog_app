@@ -1,5 +1,6 @@
 import type { BaseModel, CreateInput, UpdateInput } from "./Base";
 import type { Tag } from "./Tag";
+import type { User } from "./User";
 
 export type BlogBase = {
     title: string;
@@ -7,15 +8,12 @@ export type BlogBase = {
     slug: string;
     content: string;
     datePublished: Date | null;
-    tagIds: Tag[] | [];
+    tagIds: string[];
 }
 
 export type Blog = BaseModel & BlogBase;
 
-export type BlogCreateInput = CreateInput<Blog, "slug" | "datePublished", "tagIds" | "datePublished"> & {
-    published?: boolean;  // if true, datePublished will be set to current date if not provided, else it will be null
-    tagNames?: string[];  // names of tags to be associated with the blog
-}
+export type BlogCreateInput = CreateInput<Blog, never, "slug" | "title" | "content" | "tagIds"> 
 export type BlogUpdateInput = UpdateInput<BlogCreateInput>
 export type BlogQueryFilters = {
     author?: string;
@@ -25,4 +23,4 @@ export type BlogQueryFilters = {
     slug?: string;
 }
 
-export type BlogWithTags = Omit<Blog, "tagIds"> & {tags: Tag[]}
+export type BlogWithTags = Omit<Blog, "tagIds"| "authorId"> & {tags: Tag[]; author: Pick<User, "_id" | "name" | "username">}
