@@ -1,12 +1,13 @@
 import type { BlogWithTags } from "../types/Blog"
+import { env } from "../utils/env";
 import { LruCache } from "./lru";
 
-const DEFAULT_EXPIRY_HOUR = 6;
-const EXPIRY_HOURS = Number(process.env.EXPIRY_HOURS) || DEFAULT_EXPIRY_HOUR;
+
+const EXPIRY_HOURS = env.CACHE_EXPIRY_HOURS;
 const EXPIRY_HOURS_IN_MILLISECONDS = EXPIRY_HOURS * 60 * 60 * 1000;
 
-const DEFAULT_MAX_CACHE_SIZE = 100
-const MAX_CACHE_SIZE = Number(process.env.MAX_CACHE_SIZE) || DEFAULT_MAX_CACHE_SIZE;
+
+const MAX_CACHE_SIZE = env.CACHE_MAX_SIZE;
 
 const LIST_CACHE = new LruCache<BlogWithTags[]>(MAX_CACHE_SIZE);
 const SLUG_CACHE = new LruCache<BlogWithTags>(MAX_CACHE_SIZE);
