@@ -6,12 +6,17 @@
 2. [Response Schemas](#response-schemas)
     - [Blog Object](#blog-object)
     - [Tag Object](#tag-object)
-3. [Public Endpoints](#public-endpoints)
+    - [User Object](#user-object)
+3. [Auth Endpoints](#auth-endpoints)
+    - [Login](#auth-login)
+    - [Register](#auth-register)
+    - [Logout](#auth-logout)
+4. [Public Endpoints](#public-endpoints)
     - [Get All Blogs](#public-get-all-blogs)
     - [Get All Blogs with Tag](#public-get-all-blogs-with-tag)
     - [Get A Blog](#public-get-a-blog)
     - [Get All Tags](#public-get-all-tags)
-4. [Private Endpoints (Authenticated)](#private-endpoints)
+5. [Private Endpoints (Authenticated)](#private-endpoints)
     - [Get All Blogs (Admin)](#private-get-all-blogs)
     - [Create A Blog](#private-create-a-blog)
     - [Update A Blog](#private-update-a-blog)
@@ -19,8 +24,8 @@
     - [Search Tag](#private-search-tag)
     - [Create Tag](#private-create-tag)
     - [Slug Management](#slug-management)
-5. [Caching Strategy](#caching-strategy)
-6. [Error Responses](#error-responses)
+6. [Caching Strategy](#caching-strategy)
+7. [Error Responses](#error-responses)
 
 ---
 
@@ -78,6 +83,134 @@
 }
 ```
 
+### User Object <a id="user-object"></a>
+
+```json
+{
+  "_id": "string",
+  "username": "string",
+  "email": "string",
+  "name": "string",
+  "role": "user" | "admin",
+  "createdAt": "string (ISO 8601)",
+  "updatedAt": "string (ISO 8601)",
+  "deletedAt": "string (ISO 8601) | null"
+}
+```
+
+**Note:** The `passwordHash` field is never included in API responses.
+
+---
+
+## Auth Endpoints
+
+### Login <a id="auth-login"></a>
+Authenticate a user and receive an auth token.
+
+* **Endpoint:** `/api/login`
+* **Method:** `POST`
+* **Authentication:** None
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `password` | String | **Yes** | User's password. |
+| `username` | String | No* | User's username (*either username or email required). |
+| `email` | String | No* | User's email (*either username or email required). |
+
+**Note:** At least one of `username` or `email` must be provided.
+
+**Example Request:**
+```json
+{
+  "username": "johndoe",
+  "password": "securePassword123"
+}
+```
+
+**Response:**
+Sets `auth_token` HTTP-only cookie and returns a [User Object](#user-object).
+
+**Example Response:**
+```json
+{
+  "_id": "507f1f77bcf86cd799439013",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "name": "John Doe",
+  "role": "user",
+  "createdAt": "2025-11-15T08:00:00.000Z",
+  "updatedAt": "2025-11-15T08:00:00.000Z",
+  "deletedAt": null
+}
+```
+
+### Register <a id="auth-register"></a>
+Create a new user account.
+
+* **Endpoint:** `/api/register`
+* **Method:** `POST`
+* **Authentication:** None
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `username` | String | **Yes** | Unique username for the account. |
+| `name` | String | **Yes** | User's full name. |
+| `password` | String | **Yes** | Password for the account. |
+| `email` | String | No | User's email address. |
+
+**Note:** 
+- The `role` field is automatically set to `"user"` for security reasons.
+- To create an admin user, use the `scripts/create-admin.ts` script in the root directory.
+
+**Example Request:**
+```json
+{
+  "username": "janedoe",
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "securePassword456"
+}
+```
+
+**Response:**
+Sets `auth_token` HTTP-only cookie and returns a [User Object](#user-object).
+
+**Example Response:**
+```json
+{
+  "_id": "507f1f77bcf86cd799439014",
+  "username": "janedoe",
+  "email": "jane@example.com",
+  "name": "Jane Doe",
+  "role": "user",
+  "createdAt": "2025-12-05T10:30:00.000Z",
+  "updatedAt": "2025-12-05T10:30:00.000Z",
+  "deletedAt": null
+}
+```
+
+### Logout <a id="auth-logout"></a>
+Invalidate the current user session.
+
+* **Endpoint:** `/api/logout`
+* **Method:** `POST`
+* **Authentication:** Required
+* **Middleware:** `auth_middleware`
+
+**Response:**
+Clears the `auth_token` HTTP-only cookie.
+
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
 ---
 
 ## Public Endpoints
@@ -85,7 +218,7 @@
 ### Get All Blogs <a id="public-get-all-blogs"></a>
 Retrieve a paginated list of published blogs sorted by their date of publishing (most recent first).
 
-* **Endpoint:** `/blogs`
+* **Endpoint:** `/api/blogs`
 * **Method:** `GET`
 * **Authentication:** None
 
@@ -133,7 +266,7 @@ Returns an array of [Blog Objects](#blog-object).
 ### Get All Blogs with Tag <a id="public-get-all-blogs-with-tag"></a>
 Retrieve published blogs filtered by a specific tag sorted by their date of publishing (most recent first).
 
-* **Endpoint:** `/blogs/tag/:tagSlug`
+* **Endpoint:** `/api/blogs/tag/:tagSlug`
 * **Method:** `GET`
 * **Authentication:** None
 
@@ -156,7 +289,7 @@ Returns an array of [Blog Objects](#blog-object) matching the tag.
 ### Get A Blog <a id="public-get-a-blog"></a>
 Retrieve a single blog post by its slug.
 
-* **Endpoint:** `/blogs/:blogSlug`
+* **Endpoint:** `/api/blogs/:blogSlug`
 * **Method:** `GET`
 * **Authentication:** None
 
@@ -172,7 +305,7 @@ Returns a single [Blog Object](#blog-object).
 ### Get All Tags <a id="public-get-all-tags"></a>
 Retrieve a list of available tags sorted by their name.
 
-* **Endpoint:** `/tags`
+* **Endpoint:** `/api/tags`
 * **Method:** `GET`
 * **Authentication:** None
 
@@ -195,7 +328,7 @@ Returns an array of [Tag Objects](#tag-object).
 ### Get All Blogs (Admin) <a id="private-get-all-blogs"></a>
 Retrieve a list of all blogs including unpublished drafts, sorted by creation date.
 
-* **Endpoint:** `/private/blogs`
+* **Endpoint:** `/api/private/blogs`
 * **Method:** `GET`
 * **Authentication:** Required (Admin only)
 * **Middleware:** `auth_middleware`
@@ -214,10 +347,10 @@ Returns an array of [Blog Objects](#blog-object), including unpublished drafts.
 ### Create A Blog <a id="private-create-a-blog"></a>
 Create a new blog post.
 
-* **Endpoint:** /private/blogs
-* **Method:** POST
+* **Endpoint:** `/api/private/blogs`
+* **Method:** `POST`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Request Body:**
 
@@ -248,10 +381,10 @@ Returns the created [Blog Object](#blog-object).
 ### Update A Blog <a id="private-update-a-blog"></a>
 Update an existing blog post. Only specified fields will be updated (partial update).
 
-* **Endpoint:** /private/blogs/:id
-* **Method:** PATCH
+* **Endpoint:** `/api/private/blogs/:id`
+* **Method:** `PATCH`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Path Parameters:**
 
@@ -284,10 +417,10 @@ Returns the updated [Blog Object](#blog-object).
 ### Delete A Blog <a id="private-delete-a-blog"></a>
 Soft delete a blog post. The blog will be marked as deleted but not removed from the database.
 
-* **Endpoint:** /private/blogs/:id
-* **Method:** DELETE
+* **Endpoint:** `/api/private/blogs/:id`
+* **Method:** `DELETE`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Path Parameters:**
 
@@ -309,10 +442,10 @@ This endpoint performs a **soft delete** by setting the `deletedAt` field to the
 ### Search Tag <a id="private-search-tag"></a>
 Search for tags by name prefix (autocomplete/search functionality).
 
-* **Endpoint:** /private/tags/search
-* **Method:** GET
+* **Endpoint:** `/api/private/tags/search`
+* **Method:** `GET`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Query Parameters:**
 
@@ -327,7 +460,7 @@ Returns an array of [Tag Objects](#tag-object) matching the search query.
 
 **Example Request:**
 ```
-GET /private/tags/search?query=java&limit=5
+GET /api/private/tags/search?query=java&limit=5
 ```
 
 **Example Response:**
@@ -355,10 +488,10 @@ GET /private/tags/search?query=java&limit=5
 ### Create Tag <a id="private-create-tag"></a>
 Create a new tag.
 
-* **Endpoint:** /private/tags
-* **Method:** POST
+* **Endpoint:** `/api/private/tags`
+* **Method:** `POST`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Request Body:**
 
@@ -395,10 +528,10 @@ Returns the created [Tag Object](#tag-object).
 #### Generate Blog's Slug
 Generate a URL-friendly slug from a blog title.
 
-* **Endpoint:** /private/blogs/slugs/generate
-* **Method:** POST
+* **Endpoint:** `/api/private/blogs/slugs/generate`
+* **Method:** `POST`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Request Body:**
 
@@ -423,10 +556,10 @@ Generate a URL-friendly slug from a blog title.
 #### Verify the Blog's Slug
 Check if a slug is available (not already in use).
 
-* **Endpoint:** /private/blogs/slugs/verify
-* **Method:** POST
+* **Endpoint:** `/api/private/blogs/slugs/verify`
+* **Method:** `POST`
 * **Authentication:** Required (Admin only)
-* **Middleware:** auth_middleware
+* **Middleware:** `auth_middleware`
 
 **Request Body:**
 
