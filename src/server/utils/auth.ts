@@ -28,7 +28,7 @@ export function signAuthToken(user: User): string {
     };
 
     return jwt.sign(payload, env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRY as StringValue
+        expiresIn: env.JWT_EXPIRY as StringValue
     });
 
 }
