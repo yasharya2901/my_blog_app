@@ -11,7 +11,7 @@ const MAX_CACHE_SIZE = Number(process.env.MAX_CACHE_SIZE) || DEFAULT_MAX_CACHE_S
 const LIST_CACHE = new LruCache<BlogWithTags[]>(MAX_CACHE_SIZE);
 const SLUG_CACHE = new LruCache<BlogWithTags>(MAX_CACHE_SIZE);
 
-type ListKeyParams = {
+export type ListKeyParams = {
     tagSlug?: string;
     limit: number;
     offset: number;
