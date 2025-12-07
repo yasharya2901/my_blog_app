@@ -601,12 +601,12 @@ Or if slug is taken:
 
 **1. List View (All Published Blogs):**
 ```text
-blogs:list:all:desc:limit=${limit}:offset=${offset}
+blogs:list:all:limit=${limit}:offset=${offset}
 ```
 
 **2. List View (Filtered by Tag):**
 ```text
-blogs:list=${tagSlug}:desc:limit=${limit}:offset=${offset}
+blogs:list=${tagSlug}:limit=${limit}:offset=${offset}
 ```
 
 **3. Single Blog View:**

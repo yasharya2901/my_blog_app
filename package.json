@@ -26,7 +26,9 @@
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/ms": "^2.1.0",
     "dotenv": "^17.2.3",
     "tsx": "^4.21.0"
   }

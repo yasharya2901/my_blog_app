@@ -140,14 +140,24 @@ export class BlogRepository {
         
     }
 
-    async updateById(id: string, input: Omit<BlogUpdateInput, "authorId" | "tagIds"> & { authorId: Types.ObjectId; tagIds: Types.ObjectId[]} ): Promise<Blog | null> {
+    async updateById(id: string, input: Partial<Omit<BlogUpdateInput, "authorId" | "tagIds"> & { authorId: Types.ObjectId; tagIds: Types.ObjectId[]}> ): Promise<Blog | null> {
         await this.ensureConnection();
 
         if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
+        // Filter out undefined values to prevent overwriting existing data
+        const updateFields = Object.fromEntries(
+            Object.entries(input).filter(([_, value]) => value !== undefined)
+        );
+
+        if (Object.keys(updateFields).length === 0) {
+            // No fields to update, just return the existing blog
+            return this.findById(id);
+        }
+
         const doc = await BlogModel.findOneAndUpdate(
-            {_id: id},
-            input,
+            {_id: id, deletedAt: null},
+            updateFields,
             {new: true}
         )
 

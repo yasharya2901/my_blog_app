@@ -95,14 +95,22 @@ export class BlogService {
     }
 
     async updateBlog(id: string, fields: BlogUpdateInput) {
-        let inputfields: Omit<BlogUpdateInput, "authorId" | "tagIds"> & { authorId: Types.ObjectId; tagIds: Types.ObjectId[]} = {
-            title: fields.title,
-            slug: fields.slug,
-            content: fields.content,
-            datePublished: fields.datePublished,
-            authorId: new MongooseTypes.ObjectId(fields.authorId),
-            tagIds: fields.tagIds?.map((id) => new MongooseTypes.ObjectId(id)) ?? []
+        const inputfields: Partial<Omit<BlogUpdateInput, "authorId" | "tagIds"> & { authorId: Types.ObjectId; tagIds: Types.ObjectId[] }> = {};
+
+        // Only add fields that are actually provided
+        if (fields.title !== undefined) inputfields.title = fields.title;
+        if (fields.slug !== undefined) inputfields.slug = fields.slug;
+        if (fields.content !== undefined) inputfields.content = fields.content;
+        if (fields.datePublished !== undefined) inputfields.datePublished = fields.datePublished;
+        
+        if (fields.authorId !== undefined) {
+            inputfields.authorId = new MongooseTypes.ObjectId(fields.authorId);
         }
+        
+        if (fields.tagIds !== undefined) {
+            inputfields.tagIds = fields.tagIds.map((id) => new MongooseTypes.ObjectId(id));
+        }
+
         return this.blogRepo.updateById(id, inputfields);
     }
 }

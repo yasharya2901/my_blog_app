@@ -103,9 +103,19 @@ export class TagRepository {
 
         if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
+        // Filter out undefined values to prevent overwriting existing data
+        const updateFields = Object.fromEntries(
+            Object.entries(input).filter(([_, value]) => value !== undefined)
+        );
+
+        if (Object.keys(updateFields).length === 0) {
+            // No fields to update, just return the existing tag
+            return this.findById(id);
+        }
+
         const doc = await TagModel.findOneAndUpdate(
             {_id: id, deletedAt: null},
-            input,
+            updateFields,
             {new: true}
         )
 
