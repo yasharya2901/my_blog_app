@@ -62,6 +62,7 @@ export class TagRepository {
         let {name, slug} = input;
 
         // Check if slug already exists
+        // TODO: Implement some sort of locking mechanism to avoid duplicate tag for a concurrent request.
         const originalSlug = slug;
         for (let i = 1; ; i++) {
             let existingSlugTag = await TagModel.findOne({slug: slug, deletedAt: null});

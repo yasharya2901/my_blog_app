@@ -89,7 +89,7 @@ export class BlogService {
     }
     
     async createBlog(authorId: string) {
-        let title = "New Blog";
+        let title = "Untitled Blog";
         let mongofiedAuthorId = new MongooseTypes.ObjectId(authorId)
         return this.blogRepo.create({title: title, datePublished: null, authorId: mongofiedAuthorId, tagIds: []})
     }

@@ -54,10 +54,10 @@ async function createAdmin() {
 
         // Hash password
         console.log("Creating admin user...");
-        const saltRounds = process.env.SALT_ROUNDS || 10;
+        const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
         const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, saltRounds);
 
-        // NOTE: Not using the auth service because it indirectly depends on src/utils/env.ts that uses getSecret which is not possible with the astro runtime
+        // NOTE: Not using the auth service because it indirectly depends on `src/utils/env.ts` that uses getSecret which is not possible to import without the astro runtime
         const adminUser = await UserModel.create({
             username: ADMIN_USERNAME,
             name: ADMIN_NAME,

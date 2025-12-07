@@ -25,5 +25,5 @@ export const env = {
     CACHE_MAX_SIZE: Number(getSecret("MAX_CACHE_SIZE") ?? DEFAULT.CACHE_MAX_SIZE),
     MONGODB_URI: requireEnv("MONGODB_URI"),
     SALT_ROUNDS: Number(getSecret("SALT_ROUNDS") ?? DEFAULT.SALT_ROUNDS),
-    ALLOW_REGISTRATION: getSecret("ALLOW_REGISTRATION") == 'true'
+    ALLOW_REGISTRATION: getSecret("ALLOW_REGISTRATION") === 'true'
 }

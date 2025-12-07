@@ -32,6 +32,8 @@ export class BlogRepository {
     async findById(id: string): Promise<Blog | null> {
         await this.ensureConnection();
 
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
+        
         const doc = await BlogModel.findOne({_id: id, deletedAt: null});
 
         return doc ? normalizeBlog(doc) : null;
@@ -40,7 +42,6 @@ export class BlogRepository {
     async findBySlug(slug: Blog["slug"]): Promise<BlogWithTags | null> {
         await this.ensureConnection();
         const match: any = {slug: slug, deletedAt: null}
-        // const doc = await BlogModel.findOne({slug: slug, deletedAt: null});
         const docs = await BlogModel.aggregate([
             {$match: match},
             { $limit: 1 },
@@ -74,7 +75,10 @@ export class BlogRepository {
                 }
             }, 
             {
-                $unwind: "$author"  // changes the author array to single object
+                $unwind: { 
+                    path: "$author",
+                    preserveNullAndEmptyArrays: true  // Keep blog even if author is deleted/missing
+                }
             }
         ])
 
@@ -101,12 +105,12 @@ export class BlogRepository {
                 updatedAt: t.updatedAt.toISOString(),
                 deletedAt: t.deletedAt ? t.deletedAt.toISOString() : null,
             })),
-            author: {
+            author: doc.author ? {
                 _id: doc.author._id.toString(),
                 name: doc.author.name,
                 username: doc.author.username,
-            },
-        };
+            } : null
+        }
 
         return blogWithTags;
 
@@ -212,7 +216,10 @@ export class BlogRepository {
                 }
             }, 
             {
-                $unwind: "$author"  // changes the author array to single object
+                $unwind: { 
+                    path: "$author",
+                    preserveNullAndEmptyArrays: true  // Keep blog even if author is deleted/missing
+                }
             }
         ])
         
@@ -233,17 +240,18 @@ export class BlogRepository {
                 updatedAt: t.updatedAt.toISOString(),
                 deletedAt: t.deletedAt ? t.deletedAt.toISOString() : null,
             })),
-            author: {
+            author: doc.author ? {
                 _id: doc.author._id.toString(),
                 name: doc.author.name,
                 username: doc.author.username,
-            }
+            } : null
         }))
-        
     }
 
     async softDeleteById(id: string): Promise<void> {
         await this.ensureConnection();
+
+        if(!MongooseTypes.ObjectId.isValid(id)) return;
 
         await BlogModel.updateOne(
             {_id: id, deletedAt: null},

@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import ms from "ms";
 import type { User } from "../types/User";
 import { env } from "./env";
 import type { StringValue } from "ms";
@@ -59,28 +60,47 @@ export function getAuthTokenFromRequest(request: Request): string | null {
 }
 
 export function withAuthCookie(response: Response, token: string): Response {
-    const cookie = [
+    // Calculate Max-Age dynamically from JWT_EXPIRY to keep them synchronized
+    const maxAgeSeconds = Math.floor(ms(env.JWT_EXPIRY as StringValue) / 1000);
+    
+    // Only use Secure flag in production (requires HTTPS)
+    const isProduction = import.meta.env.PROD;
+    
+    const cookieParts = [
         `${TOKEN_COOKIE_NAME}=${encodeURIComponent(token)}`,
         "Path=/",
         "HttpOnly",
-        "Secure",
         "SameSite=Strict",
-        "Max-Age=604800", // 7 days
-    ].join("; ");
+        `Max-Age=${maxAgeSeconds}`,
+    ];
+    
+    if (isProduction) {
+        cookieParts.push("Secure");
+    }
+    
+    const cookie = cookieParts.join("; ");
 
     response.headers.append("Set-Cookie", cookie);
     return response;
 }
 
 export function clearAuthCookie(response: Response): Response {
-    const cookie = [
+    // Only use Secure flag in production (requires HTTPS)
+    const isProduction = import.meta.env.PROD;
+    
+    const cookieParts = [
         `${TOKEN_COOKIE_NAME}=`,
         "Path=/",
         "HttpOnly",
-        "Secure",
         "SameSite=Strict",
         "Max-Age=0",
-    ].join("; ");
+    ];
+    
+    if (isProduction) {
+        cookieParts.push("Secure");
+    }
+    
+    const cookie = cookieParts.join("; ");
 
     response.headers.append("Set-Cookie", cookie);
     return response;
