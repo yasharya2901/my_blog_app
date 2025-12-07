@@ -6,7 +6,7 @@ export class AuthService {
     private userRepo: UserRepository
 
     constructor(userRepo: UserRepository) {
-        this.userRepo = userRepo
+        this.userRepo = userRepo;
     }
 
 
@@ -35,7 +35,7 @@ export class AuthService {
 
         const token = signAuthToken(user);
 
-        let {passwordHash, ...userExceptPasswordHash} = user
+        let {passwordHash, ...userExceptPasswordHash} = user;
 
         return {user: userExceptPasswordHash, token};
     }
@@ -65,8 +65,8 @@ export class AuthService {
 
         const token = signAuthToken(newUser);
 
-        const { passwordHash, ...userWithPasswordHash } = newUser;
+        const { passwordHash, ...userExceptPasswordHash } = newUser;
 
-        return { user: userWithPasswordHash, token: token};
+        return { user: userExceptPasswordHash, token: token};
     }
 }
