@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { User } from "../types/User";
 import { env } from "./env";
-import type { StringValue } from "ms";
 
 
 const TOKEN_COOKIE_NAME = "auth_token";
@@ -28,7 +27,7 @@ export function signAuthToken(user: User): string {
     };
 
     return jwt.sign(payload, env.JWT_SECRET, {
-        expiresIn: env.JWT_EXPIRY as StringValue
+        expiresIn: env.JWT_EXPIRY
     });
 
 }
