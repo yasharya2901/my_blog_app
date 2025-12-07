@@ -11,7 +11,7 @@ function normalizeTag(doc: TagDocument): Tag {
         name: doc.name,
         slug: doc.slug,
         createdAt: doc.createdAt.toISOString(),
-        updatedAt: doc.createdAt.toISOString(),
+        updatedAt: doc.updatedAt.toISOString(),
         deletedAt: doc.deletedAt ? doc.deletedAt.toISOString() : null,
     }
 }
@@ -62,10 +62,11 @@ export class TagRepository {
         let {name, slug} = input;
 
         // Check if slug already exists
+        const originalSlug = slug;
         for (let i = 1; ; i++) {
             let existingSlugTag = await TagModel.findOne({slug: slug, deletedAt: null});
             if (existingSlugTag) {
-                slug = `${slug}-${i + 1}`;
+                slug = `${originalSlug}-${i + 1}`;
             } else {
                 break;
             }
