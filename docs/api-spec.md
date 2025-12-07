@@ -160,7 +160,7 @@ Create a new user account.
 | `username` | String | **Yes** | Unique username for the account. |
 | `name` | String | **Yes** | User's full name. |
 | `password` | String | **Yes** | Password for the account. |
-| `email` | String | No | User's email address. |
+| `email` | String | **Yes** | User's email address. |
 
 **Note:** 
 - The `role` field is automatically set to `"user"` for security reasons.
@@ -594,7 +594,7 @@ Or if slug is taken:
 
 * **Scope:** Caching is applied **only** to Public Routes.
 * **Mechanism:** LRU (Least Recently Used) Cache with TTL.
-* **TTL:** 6 hours (configurable via `EXPIRY_HOURS` environment variable).
+* **TTL:** 6 hours (configurable via `CACHE_EXPIRY_HOURS` environment variable).
 * **Max Cache Size:** 100 entries (configurable via `MAX_CACHE_SIZE` environment variable).
 
 ### Cache Keys

@@ -23,4 +23,4 @@ export type BlogQueryFilters = {
     slug?: string;
 }
 
-export type BlogWithTags = Omit<Blog, "tagIds"| "authorId"> & {tags: Tag[]; author: Pick<User, "_id" | "name" | "username">}
+export type BlogWithTags = Omit<Blog, "tagIds"| "authorId"> & {tags: Tag[]; author: Pick<User, "_id" | "name" | "username"> | null}

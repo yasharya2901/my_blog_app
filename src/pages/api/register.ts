@@ -24,6 +24,8 @@ export const POST: APIRoute = async ({request}) => {
             return error("Username, name, email and password are required.", StatusCodes.BAD_REQUEST);
         }
 
+        // TODO: Add a password validator (min length, max length, character requirement, etc.)
+
         const {user, token} = await authservice.register(body.name, body.username, body.password, body.email);
 
         const res = json(user, {status: StatusCodes.CREATED});
