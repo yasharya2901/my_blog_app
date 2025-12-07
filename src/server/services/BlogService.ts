@@ -76,7 +76,7 @@ export class BlogService {
 
 
         
-        return cachedBlogList ?? [];
+        return cachedBlogList;
     }
 
     async generateBlogSlug(title: string): Promise<string> {
