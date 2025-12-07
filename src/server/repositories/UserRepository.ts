@@ -67,10 +67,19 @@ export class UserRepository {
 
         if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
-        // TODO: create password hash if password is being updated
+        // Filter out undefined values to prevent overwriting existing data
+        const updateFields = Object.fromEntries(
+            Object.entries(update).filter(([_, value]) => value !== undefined)
+        );
+
+        if (Object.keys(updateFields).length === 0) {
+            // No fields to update, just return the existing user
+            return this.findById(id);
+        }
+
         const doc = await UserModel.findOneAndUpdate(
             {_id: id, deletedAt: null},
-            update,
+            updateFields,
             { new: true}
         );
 

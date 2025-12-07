@@ -11,9 +11,9 @@ let authServiceInstance: AuthService | null = null;
 let tagServiceInstance: TagService | null = null;
 
 export enum Service {
-    "blog", 
-    "auth", 
-    "tag"
+    blog, 
+    auth, 
+    tag
 };
 
 export function getService(serviceName: Service): AuthService | BlogService | TagService {

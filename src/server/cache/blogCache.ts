@@ -49,11 +49,11 @@ export function setCachedBlogBySlug(slug: string, blog: BlogWithTags): void {
 }
 
 export function resetCachedBlogBySlug(slug: string): void {
-    SLUG_CACHE.delete(slug);
+    SLUG_CACHE.delete(buildSlugKey(slug));
 }
 
 export const invalidateCache = {
-    list: LIST_CACHE.clear,
-    slug: SLUG_CACHE.clear
+    list: () => LIST_CACHE.clear(),
+    slug: () => SLUG_CACHE.clear()  // The arrow function captures LIST_CACHE in its closure
 }
 
