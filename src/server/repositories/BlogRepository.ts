@@ -23,8 +23,6 @@ function normalizeBlog(doc: BlogDocument): Blog {
 }
 
 export class BlogRepository {
-    private tagRepo = new TagRepository();
-
     async ensureConnection(): Promise<void> {
         await getDbConnection();
     }
@@ -33,7 +31,7 @@ export class BlogRepository {
         await this.ensureConnection();
 
         if (!MongooseTypes.ObjectId.isValid(id)) return null;
-        
+
         const doc = await BlogModel.findOne({_id: id, deletedAt: null});
 
         return doc ? normalizeBlog(doc) : null;

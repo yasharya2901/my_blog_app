@@ -1,5 +1,5 @@
 import { TagRepository } from "../repositories/TagRepository";
-import type { Tag } from "../types/Tag";
+import type { Tag, TagCreateInput } from "../types/Tag";
 
 export class TagService {
     private tagRepo: TagRepository;
@@ -14,5 +14,10 @@ export class TagService {
 
     async searchTag(tagName: string, limit: number, offset: number): Promise<Tag[]> {
         return await this.tagRepo.findTagsByNameStartingWith(tagName, limit, offset);
+    }
+
+    async createTag(name: string): Promise<Tag> {
+        const input: TagCreateInput = { name };
+        return await this.tagRepo.createTag(input);
     }
 }
