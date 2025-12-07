@@ -1,11 +1,13 @@
-import { model, models, Schema, type Document, type Model } from "mongoose";
+import mongoose from "mongoose";  // mongoose is a commonJS module, not an ESM module
+const { model, models, Schema } = mongoose;
+import type { Document, Model } from "mongoose";
 import type { BlogBase } from "../../types/Blog";
 
 
 export type BlogDocument = Omit<BlogBase, "authorId" | "tagIds" | "datePublished"> & 
     {
-        authorId: Schema.Types.ObjectId;
-        tagIds: Schema.Types.ObjectId[];
+        authorId: mongoose.Schema.Types.ObjectId;
+        tagIds: mongoose.Schema.Types.ObjectId[];
         datePublished: Date | null;
     } & Document & {
         createdAt: Date;
@@ -33,7 +35,7 @@ const BlogSchema = new Schema<BlogDocument>(
             required: false,
         },
         authorId: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
             index: true,
@@ -44,7 +46,7 @@ const BlogSchema = new Schema<BlogDocument>(
         },
         tagIds: [
             {
-                type: Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: "Tag",
                 index: true,
             }

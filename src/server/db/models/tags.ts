@@ -1,4 +1,6 @@
-import { type Document, model, type Model, models, Schema } from "mongoose";
+import mongoose from "mongoose";  // mongoose is a commonJS module, not an ESM module
+const { model, models, Schema } = mongoose;
+import type { Document, Model } from "mongoose";
 import type { TagBase } from "../../types/Tag";
 
 export type TagDocument = TagBase & 

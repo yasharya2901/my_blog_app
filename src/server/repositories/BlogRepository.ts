@@ -1,4 +1,6 @@
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+import type { Types } from "mongoose";
+const { Types: MongooseTypes } = mongoose;
 import { getDbConnection } from "../db/connection";
 import { BlogModel, type BlogDocument } from "../db/models/blog";
 import type { Blog, BlogCreateInput, BlogUpdateInput, BlogWithTags } from "../types/Blog";
@@ -141,7 +143,7 @@ export class BlogRepository {
     async updateById(id: string, input: Omit<BlogUpdateInput, "authorId" | "tagIds"> & { authorId: Types.ObjectId; tagIds: Types.ObjectId[]} ): Promise<Blog | null> {
         await this.ensureConnection();
 
-        if (!Types.ObjectId.isValid(id)) return null;
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
         const doc = await BlogModel.findOneAndUpdate(
             {_id: id},
@@ -162,7 +164,7 @@ export class BlogRepository {
         }
 
         if (tagIds && tagIds.length > 0) {
-            match.tagIds = { $all: tagIds.map((id) => new Types.ObjectId(id))}
+            match.tagIds = { $all: tagIds.map((id) => new MongooseTypes.ObjectId(id))}
         }
 
         const docs = await BlogModel.aggregate([
@@ -231,6 +233,8 @@ export class BlogRepository {
     }
 
     async softDeleteById(id: string): Promise<void> {
+        await this.ensureConnection();
+        
         await BlogModel.updateOne(
             {_id: id},
             {deletedAt: new Date()}

@@ -1,4 +1,5 @@
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+const { Types: MongooseTypes } = mongoose;
 import { getDbConnection } from "../db/connection";
 import { TagModel, type TagDocument } from "../db/models/tags";
 import type { Tag, TagCreateInput, TagUpdateInput } from "../types/Tag";
@@ -83,7 +84,7 @@ export class TagRepository {
     async findById(id: string): Promise<Tag | null> {
         await this.ensureConnection();
         
-        if (!Types.ObjectId.isValid(id)) return null;
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
         const doc = await TagModel.findOne({_id: id, deletedAt: null});
 
         return doc ? normalizeTag(doc) : null;
@@ -99,7 +100,7 @@ export class TagRepository {
     async updateById(id: string, input: TagUpdateInput): Promise<Tag | null> {
         await this.ensureConnection();
 
-        if (!Types.ObjectId.isValid(id)) return null;
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
         const doc = await TagModel.findOneAndUpdate(
             {_id: id, deletedAt: null},
@@ -113,7 +114,7 @@ export class TagRepository {
     async softDeleteById(id: string): Promise<void> {
         await this.ensureConnection();
         
-        if(!Types.ObjectId.isValid(id)) return;
+        if(!MongooseTypes.ObjectId.isValid(id)) return;
 
         await TagModel.updateOne(
             {_id: id, deletedAt: null},
@@ -122,6 +123,8 @@ export class TagRepository {
     }
 
     async findAll(limit: number, offset: number): Promise<Tag[]> {
+        await this.ensureConnection();
+
         let tagDocs = await TagModel
             .find({deletedAt: null})
             .sort({name: "asc"})

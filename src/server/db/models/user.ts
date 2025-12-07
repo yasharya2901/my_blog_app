@@ -1,5 +1,7 @@
 
-import { model, type Model, type Document, models, Schema } from "mongoose";
+import mongoose from "mongoose";   // mongoose is a commonJS module, not an ESM module
+const { model, models, Schema } = mongoose;
+import type { Document, Model } from "mongoose";
 import type { UserBase } from "../../types/User";
 
 export type UserDocument = UserBase &

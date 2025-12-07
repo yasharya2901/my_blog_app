@@ -1,4 +1,5 @@
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+const { Types: MongooseTypes } = mongoose;
 import { getDbConnection } from "../db/connection";
 import { UserModel, type UserDocument } from "../db/models/user";
 import type { User, UserCreateInput, UserUpdateInput } from "../types/User";
@@ -48,14 +49,15 @@ export class UserRepository {
     async findById(id: string): Promise<User | null> {
         await this.ensureConnection();
 
-        if (!Types.ObjectId.isValid(id)) return null;
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
         const doc = await UserModel.findOne({_id: id, deletedAt: null});
         return doc ? normalizeUser(doc) : null;
     }
 
     async findByUsername(username: string): Promise<User | null> {
-        
+        await this.ensureConnection();
+
         const doc = await UserModel.findOne({username: username, deleteAt: null});
         return doc ? normalizeUser(doc) : null;
     }
@@ -63,7 +65,7 @@ export class UserRepository {
     async updateById(id: string, update: UserUpdateInput): Promise<User | null> {
         await this.ensureConnection();
 
-        if (!Types.ObjectId.isValid(id)) return null;
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
 
         // TODO: create password hash if password is being updated
         const doc = await UserModel.findOneAndUpdate(
@@ -78,7 +80,7 @@ export class UserRepository {
     async softDeleteById(id: string): Promise<void> {
         await this.ensureConnection();
 
-        if(!Types.ObjectId.isValid(id)) return;
+        if(!MongooseTypes.ObjectId.isValid(id)) return;
 
         await UserModel.updateOne(
             {_id: id, deletedAt: null},
