@@ -13,7 +13,7 @@ type AuthTokenPayload = {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-    const saltRounds = 10;
+    const saltRounds = env.SALT_ROUNDS;
     return bcrypt.hash(password, saltRounds);
 }
 

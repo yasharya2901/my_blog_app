@@ -1,6 +1,5 @@
-import { UserModel } from "../db/models/user";
 import type { UserRepository } from "../repositories/UserRepository";
-import type { User } from "../types/User";
+import type { User, UserRole } from "../types/User";
 import { hashPassword, signAuthToken, verifyPassword } from "../utils/auth";
 
 export class AuthService {
@@ -41,7 +40,7 @@ export class AuthService {
         return {user: userExceptPasswordHash, token};
     }
 
-    async register(name: string, username: string, password: string, email: string): Promise<{user: Omit<User, "passwordHash">, token: string}> {
+    async register(name: string, username: string, password: string, email: string, role?: UserRole): Promise<{user: Omit<User, "passwordHash">, token: string}> {
         let userByUsername = await this.userRepo.findByUsername(username);
 
         if (userByUsername) {
@@ -61,7 +60,7 @@ export class AuthService {
             username: username,
             email: email,
             passwordHash: hashedPassword,
-            role: "user"
+            role: role ?? "user"
         })
 
         const token = signAuthToken(newUser);

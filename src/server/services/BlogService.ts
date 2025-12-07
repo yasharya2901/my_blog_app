@@ -1,4 +1,6 @@
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+import type { Types } from "mongoose";
+const { Types: MongooseTypes } = mongoose;
 import { getCachedBlogBySlug, getCachedBlogList, setCachedBlogBySlug, setCachedBlogList, type ListKeyParams } from "../cache/blogCache";
 import { BlogRepository } from "../repositories/BlogRepository";
 import { TagRepository } from "../repositories/TagRepository";
@@ -88,7 +90,7 @@ export class BlogService {
     
     async createBlog(authorId: string) {
         let title = "New Blog";
-        let mongofiedAuthorId = new Types.ObjectId(authorId)
+        let mongofiedAuthorId = new MongooseTypes.ObjectId(authorId)
         return this.blogRepo.create({title: title, datePublished: null, authorId: mongofiedAuthorId, tagIds: []})
     }
 
@@ -98,8 +100,8 @@ export class BlogService {
             slug: fields.slug,
             content: fields.content,
             datePublished: fields.datePublished,
-            authorId: new Types.ObjectId(fields.authorId),
-            tagIds: fields.tagIds?.map((id) => new Types.ObjectId(id)) ?? []
+            authorId: new MongooseTypes.ObjectId(fields.authorId),
+            tagIds: fields.tagIds?.map((id) => new MongooseTypes.ObjectId(id)) ?? []
         }
         return this.blogRepo.updateById(id, inputfields);
     }
