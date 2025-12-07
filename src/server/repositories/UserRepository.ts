@@ -58,7 +58,7 @@ export class UserRepository {
     async findByUsername(username: string): Promise<User | null> {
         await this.ensureConnection();
 
-        const doc = await UserModel.findOne({username: username, deleteAt: null});
+        const doc = await UserModel.findOne({username: username, deletedAt: null});
         return doc ? normalizeUser(doc) : null;
     }
 
