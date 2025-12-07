@@ -1,6 +1,6 @@
 import type { UserRepository } from "../repositories/UserRepository";
 import type { User, UserRole } from "../types/User";
-import { hashPassword, signAuthToken, verifyPassword } from "../utils/auth";
+import { getAuthTokenFromRequest, hashPassword, signAuthToken, verifyAuthToken, verifyPassword } from "../utils/auth";
 
 export class AuthService {
     private userRepo: UserRepository
@@ -68,5 +68,34 @@ export class AuthService {
         const { passwordHash, ...userExceptPasswordHash } = newUser;
 
         return { user: userExceptPasswordHash, token: token};
+    }
+
+    async getUserFromToken(token: string): Promise<User> {
+        const payload = verifyAuthToken(token);
+        if (!payload) {
+            throw new Error("Invalid or expired token");
+        }
+
+        const user = await this.userRepo.findById(payload.sub);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        return user;
+    }
+
+    async requireAdminFromRequest(request: Request): Promise<User> {
+        const token = getAuthTokenFromRequest(request);
+        if (!token) {
+            throw new Error("Authentication required");
+        }
+
+        const user = await this.getUserFromToken(token);
+        
+        if (user.role !== "admin") {
+            throw new Error("Admin access required");
+        }
+
+        return user;
     }
 }

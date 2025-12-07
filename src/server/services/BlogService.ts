@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import type { Types } from "mongoose";
 const { Types: MongooseTypes } = mongoose;
-import { getCachedBlogBySlug, getCachedBlogList, setCachedBlogBySlug, setCachedBlogList, type ListKeyParams } from "../cache/blogCache";
+import { getCachedBlogBySlug, getCachedBlogList, invalidateCache, resetCachedBlogBySlug, setCachedBlogBySlug, setCachedBlogList, type ListKeyParams } from "../cache/blogCache";
 import { BlogRepository } from "../repositories/BlogRepository";
 import { TagRepository } from "../repositories/TagRepository";
 import type { BlogUpdateInput, BlogWithTags } from "../types/Blog";
@@ -112,5 +112,16 @@ export class BlogService {
         }
 
         return this.blogRepo.updateById(id, inputfields);
+    }
+
+    async deleteBlog(id: string): Promise<void> {
+        const blog = await this.blogRepo.findById(id);
+        if (blog) {
+            // Invalidate caches before deletion
+            invalidateCache.list();
+            resetCachedBlogBySlug(blog.slug);
+        }
+        
+        await this.blogRepo.softDeleteById(id);
     }
 }

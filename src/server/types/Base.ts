@@ -5,8 +5,9 @@ export type BaseModel = {
     deletedAt: string | null;
 };
 
-export type CreateInput<T, ExtraOmit extends keyof T = never, MakeOptional extends keyof T = never> = Omit<T, keyof BaseModel | ExtraOmit> & {
-    [K in MakeOptional]?: T[K]
-}
+export type CreateInput<T, ExtraOmit extends keyof T = never, MakeOptional extends keyof T = never> = 
+    Omit<T, keyof BaseModel | ExtraOmit | MakeOptional> & {
+        [K in MakeOptional]?: T[K]
+    }
 
 export type UpdateInput<T> = Partial<T>
