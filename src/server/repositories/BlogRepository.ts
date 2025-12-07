@@ -234,9 +234,9 @@ export class BlogRepository {
 
     async softDeleteById(id: string): Promise<void> {
         await this.ensureConnection();
-        
+
         await BlogModel.updateOne(
-            {_id: id},
+            {_id: id, deletedAt: null},
             {deletedAt: new Date()}
         )
     }
