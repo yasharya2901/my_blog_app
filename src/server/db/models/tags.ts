@@ -15,7 +15,7 @@ const TagSchema = new Schema<TagDocument>(
         name: {
             type: String,
             required: true,
-            unique: true,
+            unique: false,
             lowercase: true,
             trim: true,
             index: true,

@@ -26,6 +26,7 @@ const BlogSchema = new Schema<BlogDocument>(
             type: String,
             required: false,
             unique: true,
+            sparse: true,
             lowercase: true,
             trim: true,
             index: true,
