@@ -16,8 +16,8 @@ async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T>
     });
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Request failed' }));
-        throw new ApiError(response.status, error.message);
+        const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+        throw new ApiError(response.status, errorData.error || errorData.message || 'Request failed');
     }
 
     return response.json();

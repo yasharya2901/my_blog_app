@@ -1,4 +1,5 @@
 ---
+import { Toaster } from "react-hot-toast";
 import "../styles/global.css";
 ---
 
@@ -12,6 +13,54 @@ import "../styles/global.css";
 		<title>Yash Arya's Blog</title>
 	</head>
 	<body class="w-full h-full">
+		<Toaster
+            position="bottom-right"
+            client:load
+            gutter={10}
+            toastOptions={{
+                className: '!bg-[#171717] !text-gray-200 border border-gray-800 shadow-2xl rounded-lg',
+                
+                style: {
+                    background: '#171717',
+                    color: '#fff',
+                    padding: '16px',
+                    fontSize: '14px',
+                },
+
+                // Success State - Matching Green (#4ADE80 / #3FC16F)
+                success: {
+                    style: {
+                        border: '1px solid rgba(63, 193, 111, 0.3)', // Subtle Green Border
+                    },
+                    iconTheme: {
+                        primary: '#4ADE80', // Bright Green Icon
+                        secondary: '#171717', // Dark Checkmark inside
+                    },
+                },
+
+                // Error State - Red (Standard) but styled to match dark theme
+                error: {
+                    style: {
+                        border: '1px solid rgba(248, 113, 113, 0.3)', // Subtle Red Border
+                    },
+                    iconTheme: {
+                        primary: '#F87171', // Soft Red Icon
+                        secondary: '#171717',
+                    },
+                },
+                
+                // Loading State - Matching Blue (#60A5FA)
+                loading: {
+                    style: {
+                        border: '1px solid rgba(96, 165, 250, 0.3)', // Subtle Blue Border
+                    },
+                    iconTheme: {
+                        primary: '#60A5FA', // Blue Spinner
+                        secondary: '#171717', 
+                    },
+                }
+            }}
+        />
 		<slot />
 	</body>
 </html>

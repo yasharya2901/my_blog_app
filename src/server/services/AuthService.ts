@@ -70,7 +70,7 @@ export class AuthService {
         return { user: userExceptPasswordHash, token: token};
     }
 
-    async getUserFromToken(token: string): Promise<User> {
+    async getUserFromToken(token: string): Promise<Omit<User, "passwordHash" | "createdAt" | "updatedAt" | "deletedAt">> {
         const payload = verifyAuthToken(token);
         if (!payload) {
             throw new Error("Invalid or expired token");
@@ -81,10 +81,11 @@ export class AuthService {
             throw new Error("User not found");
         }
 
-        return user;
+        const { passwordHash, createdAt, deletedAt, updatedAt, ...sanitizedUser } = user
+        return sanitizedUser;
     }
 
-    async requireAdminFromRequest(request: Request): Promise<User> {
+    async requireAdminFromRequest(request: Request): Promise<Omit<User, "passwordHash" | "createdAt" | "updatedAt" | "deletedAt">> {
         const token = getAuthTokenFromRequest(request);
         if (!token) {
             throw new Error("Authentication required");

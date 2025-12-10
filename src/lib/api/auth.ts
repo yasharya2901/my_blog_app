@@ -1,19 +1,7 @@
+import type { LoginRequest, User } from '../types/user';
 import { apiClient } from './client';
 
-export type LoginRequest = {
-    email?: string,
-    username?: string,
-    password: string
-}
 
-
-export type User = {
-    _id: string,
-    username: string,
-    email: string,
-    name: string,
-    role: 'user' | 'admin'
-}
 
 export const authApi = {
     async login(data: LoginRequest): Promise<User> {
@@ -25,5 +13,9 @@ export const authApi = {
 
     async logout(): Promise<void> {
         return apiClient("/logout", {method: "POST"});
+    },
+
+    async me(): Promise<User> {
+        return apiClient<User>("/me", {method: "GET"})
     }
 }

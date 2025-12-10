@@ -1,11 +1,26 @@
-import { FaLock, FaUser } from "react-icons/fa6";
-import React from "react";
-import { authApi, type LoginRequest } from "../../lib/api/auth";
+import { FaLock, FaSpinner, FaUser } from "react-icons/fa6";
+import React, { useEffect, type JSX } from "react";
+import { authApi } from "../../lib/api/auth";
 import { isEmail } from "../../lib/utils/email-checker";
+import toast from "react-hot-toast";
+import type { LoginRequest } from "../../lib/types/user";
+import { useStore } from "@nanostores/react";
+import { $authLoading, $user, login } from "../../lib/stores/auth";
 
-function LoginForm() {
+function LoginForm(): JSX.Element {
+
+  const user = useStore($user);
+  const authLoading = useStore($authLoading);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      window.location.href = "/dashboard"
+    }
+  }, [authLoading, user]);
+
   const [identifier, setIdentifier] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,12 +33,23 @@ function LoginForm() {
 
 
     try {
-        const user = await authApi.login(data);
+        setLoading(true);
+        const user = await login(data);
         console.log(user);
-    } catch (error) {
-        console.error(error);
+    } catch (error: any) {
+        toast.error(error?.message);
+        setLoading(false);
     }
   };
+
+  if (authLoading || user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] animate-pulse">
+        <FaSpinner className="text-[#4ADE80] text-4xl animate-spin mb-4" />
+        <p className="text-gray-400 text-sm">Checking authentication...</p>
+      </div>
+    );
+  }
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -39,6 +65,7 @@ function LoginForm() {
           </div>
           <input
             type="text"
+            name="identifier"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-black border border-gray-700 rounded-lg focus:outline-none focus:border-[#4ADE80] focus:ring-1 focus:ring-[#4ADE80] text-white placeholder-gray-600 transition duration-300"
@@ -68,8 +95,24 @@ function LoginForm() {
         </div>
       </div>
 
-      <button className="w-full py-3 bg-linear-to-r from-[#3FC16F] to-[#60A5FA] text-white font-bold rounded-lg hover:from-[#4ADE80] hover:to-[#60A5FA] transition-all duration-300 transform hover:scale-[1.02] shadow-lg flex justify-center items-center">
-        <span>Sign In</span>
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full py-3 font-bold rounded-lg text-white shadow-lg flex justify-center items-center transition-all duration-300 
+          ${loading 
+            ? "bg-gray-600 cursor-not-allowed opacity-70"
+            : "bg-linear-to-r from-[#3FC16F] to-[#60A5FA] hover:from-[#4ADE80] hover:to-[#60A5FA] hover:scale-[1.02] transform"
+          }`
+        }
+      >
+        {loading ? (
+            <>
+              <FaSpinner className="animate-spin mr-2" /> 
+              <span>Signing In...</span>
+            </>
+        ) : (
+            <span>Sign In</span>
+        )}
       </button>
     </form>
   );

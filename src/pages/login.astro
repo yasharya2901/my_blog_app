@@ -1,21 +1,33 @@
 ---
 import App from "../layout/app.astro";
-import LoginForm from "../components/Login/LoginForm"
-
+import LoginForm from "../components/Login/LoginForm";
 ---
 
 <App>
-    <div class="relative w-full h-full flex items-center justify-center bg-black">
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#3FC16F] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#60A5FA] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000"></div>
-        </div>
+  <div class="relative w-full h-full flex items-center justify-center bg-black">
+    <div
+      class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none"
+    >
+      <div
+        class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#3FC16F] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"
+      >
+      </div>
+      <div
+        class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#60A5FA] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000"
+      >
+      </div>
+    </div>
 
-        <div class="w-full max-w-md bg-[#171717] rounded-2xl shadow-2xl border border-gray-800 p-8 md:p-10 relative z-10 animate__animated animate__fadeInUp mx-4">
-      
+    <div
+      class="w-full max-w-md bg-[#171717] rounded-2xl shadow-2xl border border-gray-800 p-8 md:p-10 relative z-10 animate__animated animate__fadeInUp mx-4"
+    >
       <div class="text-center mb-8">
-        <a href="/" class="text-2xl font-bold text-white hover:text-[#3FC16F] transition duration-300 inline-block mb-2">
-          <span class="text-[#4ADE80]">Yash</span> <span class="text-[#60A5FA]">Arya</span>
+        <a
+          href="/"
+          class="text-2xl font-bold text-white hover:text-[#3FC16F] transition duration-300 inline-block mb-2"
+        >
+          <span class="text-[#4ADE80]">Yash</span>
+          <span class="text-[#60A5FA]">Arya</span>
         </a>
         <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
         <p class="text-gray-400">Please enter your details to sign in.</p>
