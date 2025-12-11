@@ -5,8 +5,25 @@ class ApiError extends Error {
 }
 
 
-async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`/api${endpoint}`, {
+function buildQueryParams(params?: Record<string, any>): string {
+    if (!params) return "";
+
+    const entries = Object.entries(params)
+        .filter(([k, v]) => v !== undefined && v !== null)
+        .map(([k, v]) => {
+            if (Array.isArray(v)) {
+                return v.map((item) => `${encodeURIComponent(k)}=${encodeURIComponent(String(item))}`);
+            }
+            return `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`;
+        })
+
+    return entries.length ? `${entries.join("&")}`: "";
+}
+
+async function apiClient<T>(endpoint: string, options?: RequestInit, queryParams?: Record<string, any>): Promise<T> {
+    const qs = buildQueryParams(queryParams);
+    const url = `/api${endpoint}${qs ? `?${qs}`: ""}`
+    const response = await fetch(url, {
         headers: {
             'Content-Type': 'application/json',
             ...options?.headers,

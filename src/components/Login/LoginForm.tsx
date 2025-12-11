@@ -14,7 +14,8 @@ function LoginForm(): JSX.Element {
 
   useEffect(() => {
     if (!authLoading && user) {
-      window.location.href = "/dashboard"
+      sessionStorage.setItem("from_login_redirect", "true");
+      window.location.href = "/dashboard";
     }
   }, [authLoading, user]);
 
@@ -34,8 +35,7 @@ function LoginForm(): JSX.Element {
 
     try {
         setLoading(true);
-        const user = await login(data);
-        console.log(user);
+        await login(data);
     } catch (error: any) {
         toast.error(error?.message);
         setLoading(false);
