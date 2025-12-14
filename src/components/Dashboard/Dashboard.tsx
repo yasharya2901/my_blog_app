@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { $authLoading, $user, logout } from '../../lib/stores/auth'
 import { useStore } from '@nanostores/react';
-import DashboardTemp from './Temp';
 import AuthLoader from '../AuthLoader/AuthLoader';
 
 function Dashboard() {
@@ -9,7 +8,7 @@ function Dashboard() {
     const user = useStore($user);
     const authLoading = useStore($authLoading);
 
-    const [minDelayPassed, setMinDelayPassed] = useState(() => {
+    const [isFromLoginRedirect] = useState<boolean>(() => {
         if (typeof window !== "undefined") {
             const isRedirect = sessionStorage.getItem("from_login_redirect");
             if (isRedirect) {
@@ -19,6 +18,8 @@ function Dashboard() {
         }
         return false;
     });
+
+    const [minDelayPassed, setMinDelayPassed] = useState<boolean>(false);
 
     useEffect(() => {
         if (!minDelayPassed) {
@@ -33,9 +34,9 @@ function Dashboard() {
         await logout();
     }
 
-    const isLoading = authLoading || !minDelayPassed;
+    const showLoader = (authLoading || !minDelayPassed) && !isFromLoginRedirect;
 
-    if (isLoading) {
+    if (showLoader) {
         return <AuthLoader />;
     }
 
