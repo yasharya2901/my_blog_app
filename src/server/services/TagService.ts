@@ -20,4 +20,8 @@ export class TagService {
         const input: TagCreateInput = { name };
         return await this.tagRepo.createTag(input);
     }
+
+    async findTotalCountOfTags(): Promise<number> {
+        return await this.tagRepo.findTotalCount();
+    }
 }

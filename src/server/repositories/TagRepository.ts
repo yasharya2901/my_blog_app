@@ -74,7 +74,7 @@ export class TagRepository {
         }
 
         const tagDoc = await TagModel.create({
-            name: name.toLowerCase(),
+            name: name,
             slug: slug,
             deletedAt: null
         })
@@ -144,5 +144,13 @@ export class TagRepository {
             .limit(limit)
 
         return tagDocs.map(normalizeTag);
+    }
+
+    async findTotalCount(): Promise<number> {
+        await this.ensureConnection();
+
+        let totalCount = await TagModel.countDocuments({deletedAt: null});
+
+        return totalCount;
     }
 }

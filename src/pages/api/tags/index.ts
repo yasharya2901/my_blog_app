@@ -13,10 +13,17 @@ const tagService = getService(Service.tag) as TagService;
 export const GET: APIRoute = async ({ request }) => {
     try {
         const { limit, offset } = parsePagination(new URL(request.url));
-        const tags = await tagService.getAllTags(limit, offset);
-        return json(tags, { status: StatusCodes.OK });
-    } catch (err) {
+        const [tags, totalTagCount] = await Promise.all([tagService.getAllTags(limit, offset), tagService.findTotalCountOfTags()]);
+        
+        let refinedTags = tags.map((tag) => ({
+            _id: tag._id,
+            name: tag.name,
+            slug: tag.slug
+        }))
+        const response = {tags: refinedTags, total: totalTagCount};
+        return json(response, { status: StatusCodes.OK });
+    } catch (err: any) {
         console.error("Error fetching tags: ", err);
-        return error("Internal Server Error", StatusCodes.INTERNAL_SERVER_ERROR);
+        return error(err?.message ?? "Internal Server Error", StatusCodes.INTERNAL_SERVER_ERROR);
     }
 };

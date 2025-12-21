@@ -8,3 +8,11 @@ export type Tag = {
     updatedAt: string;
     deletedAt: string;
 }
+
+export type StrippedTag = Omit<Tag, "createdAt" | "updatedAt" | "deletedAt">
+
+
+export type AllTagResponse = {
+    tags: StrippedTag[];
+    total: number;
+}

@@ -1,10 +1,10 @@
-import type { Tag } from "../types/tags";
+import type { AllTagResponse, Tag } from "../types/tags";
 import { apiClient } from "./client";
 
 
 export const tagApi = {
-    async getAllTags(limit: number, offset: number): Promise<Tag[]> {
-        return apiClient<Tag[]>("/tags", {method: "GET"}, {limit, offset});
+    async getAllTags(limit: number, offset: number): Promise<AllTagResponse> {
+        return apiClient<AllTagResponse>("/tags", {method: "GET"}, {limit, offset});
     },
 }
 

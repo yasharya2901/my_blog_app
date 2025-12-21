@@ -303,7 +303,7 @@ Retrieve a single blog post by its slug.
 Returns a single [Blog Object](#blog-object).
 
 ### Get All Tags <a id="public-get-all-tags"></a>
-Retrieve a list of available tags sorted by their name.
+Retrieve a paginated list of available tags sorted by their name.
 
 * **Endpoint:** `/api/tags`
 * **Method:** `GET`
@@ -317,7 +317,47 @@ Retrieve a list of available tags sorted by their name.
 | `offset` | Integer | No | `0` | Number of tags to skip. |
 
 **Response:**
-Returns an array of [Tag Objects](#tag-object).
+Returns an object containing a paginated list of stripped-down tag objects and the total count.
+
+**Response Schema:**
+```json
+{
+  "tags": [
+    {
+      "_id": "string",
+      "name": "string",
+      "slug": "string"
+    }
+  ],
+  "total": "integer"
+}
+```
+
+**Note:** This endpoint returns a simplified tag object without timestamp fields (`createdAt`, `updatedAt`, `deletedAt`) to reduce payload size for public consumption.
+
+**Example Response:**
+```json
+{
+  "tags": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "name": "astro",
+      "slug": "astro"
+    },
+    {
+      "_id": "507f1f77bcf86cd799439015",
+      "name": "javascript",
+      "slug": "javascript"
+    },
+    {
+      "_id": "507f1f77bcf86cd799439016",
+      "name": "typescript",
+      "slug": "typescript"
+    }
+  ],
+  "total": 15
+}
+```
 
 ---
 
