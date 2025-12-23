@@ -19,7 +19,9 @@ export const GET: APIRoute = async ({request, params}) => {
 
         const {limit, offset} = parsePagination(new URL(request.url));
 
-        const blogs = await blogService.filterBlogsByTag(slug, limit, offset);
+        // Pass includeContent=false to exclude content field at DB layer
+        const blogs = await blogService.filterPublicBlogsByTag(slug, limit, offset, false);
+        
         return json(blogs, {status: StatusCodes.OK});
     } catch (err) {
         console.error(err);

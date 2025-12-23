@@ -7,6 +7,7 @@ import { StatusCodes } from "http-status-codes";
 import type { BlogUpdateInput } from "../../../../server/types/Blog";
 import { invalidateCache, resetCachedBlogBySlug } from "../../../../server/cache/blogCache";
 import { BlogRepository } from "../../../../server/repositories/BlogRepository";
+import { env } from "../../../../server/utils/env";
 
 export const prerender = false;
 export const runtime = "node";
@@ -30,6 +31,16 @@ export const PATCH: APIRoute = async ({ request, params }) => {
         // Explicitly prevent authorId from being updated
         if ("authorId" in body) {
             delete body.authorId;
+        }
+
+        // Validate shortDescription length if provided
+        if (body.shortDescription !== undefined) {
+            if (body.shortDescription.length > env.SHORT_DESCRIPTION_MAX_LENGTH) {
+                return error(
+                    `shortDescription must not exceed ${env.SHORT_DESCRIPTION_MAX_LENGTH} characters`,
+                    StatusCodes.BAD_REQUEST
+                );
+            }
         }
 
         // Get the blog before update to get its slug for cache invalidation

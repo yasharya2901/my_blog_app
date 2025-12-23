@@ -7,6 +7,7 @@ export type BlogBase = {
     authorId: string;
     slug: string;
     content: string;
+    shortDescription: string;
     datePublished: Date | null;
     tagIds: string[];
 }
@@ -24,3 +25,4 @@ export type BlogQueryFilters = {
 }
 
 export type BlogWithTags = Omit<Blog, "tagIds"| "authorId"> & {tags: Tag[]; author: Pick<User, "_id" | "name" | "username"> | null}
+export type PublicBlogWithTags = Omit<BlogWithTags, "createdAt" | "deletedAt"> & {tags: Omit<Tag, "createdAt" | "deletedAt">[]}

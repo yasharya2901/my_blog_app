@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({params}) => {
             return error("blogSlug is required", StatusCodes.BAD_REQUEST);
         }
 
-        const blog = await blogService.getBlogBySlug(slug);
+        const blog = await blogService.getPublicBlogBySlug(slug);
         return json(blog, {status: StatusCodes.OK});
     } catch (err) {
         console.error(err);

@@ -5,6 +5,7 @@
 1. [Overview](#overview)
 2. [Response Schemas](#response-schemas)
     - [Blog Object](#blog-object)
+    - [Public Blog Object](#public-blog-object)
     - [Tag Object](#tag-object)
     - [User Object](#user-object)
 3. [Auth Endpoints](#auth-endpoints)
@@ -18,6 +19,7 @@
     - [Get All Tags](#public-get-all-tags)
 5. [Private Endpoints (Authenticated)](#private-endpoints)
     - [Get All Blogs (Admin)](#private-get-all-blogs)
+    - [Get All Blogs with Tag (Admin)](#private-get-all-blogs-with-tag)
     - [Create A Blog](#private-create-a-blog)
     - [Update A Blog](#private-update-a-blog)
     - [Delete A Blog](#private-delete-a-blog)
@@ -42,12 +44,15 @@
 
 ### Blog Object <a id="blog-object"></a>
 
+The **full Blog Object** returned by **admin/private endpoints** includes all fields:
+
 ```json
 {
   "_id": "string",
   "title": "string",
   "slug": "string",
   "content": "string (HTML/Markdown)",
+  "shortDescription": "string",
   "datePublished": "string (ISO 8601) | null",
   "createdAt": "string (ISO 8601)",
   "updatedAt": "string (ISO 8601)",
@@ -69,6 +74,45 @@
   }
 }
 ```
+
+### Public Blog Object <a id="public-blog-object"></a>
+
+The **Public Blog Object** returned by **public endpoints** excludes admin-only timestamp fields:
+
+```json
+{
+  "_id": "string",
+  "title": "string",
+  "slug": "string",
+  "content": "string (HTML/Markdown)",
+  "shortDescription": "string",
+  "datePublished": "string (ISO 8601) | null",
+  "updatedAt": "string (ISO 8601)",
+  "tags": [
+    {
+      "_id": "string",
+      "name": "string",
+      "slug": "string",
+      "updatedAt": "string (ISO 8601)"
+    }
+  ],
+  "author": {
+    "_id": "string",
+    "name": "string",
+    "username": "string"
+  }
+}
+```
+
+**Key Differences:**
+- **Excluded from public responses:** `createdAt`, `deletedAt` (both for blogs and tags)
+- **Performance optimization:** `content` field is excluded from list endpoints
+- **Retained for public use:** `updatedAt` (shows when content was last modified)
+
+**Note:** 
+- **Public endpoints** use `PublicBlogWithTags` type for type safety
+- **Private endpoints** use `BlogWithTags` type with full admin fields
+- The `shortDescription` field (max 200 characters) provides a brief summary for list views
 
 ### Tag Object <a id="tag-object"></a>
 
@@ -230,7 +274,7 @@ Retrieve a paginated list of published blogs sorted by their date of publishing 
 | `offset` | Integer | No | `0` | Number of items to skip. |
 
 **Response:**
-Returns an array of [Blog Objects](#blog-object).
+Returns an array of [Public Blog Objects](#public-blog-object) **without the `content` field**. The `shortDescription` field is included for preview purposes.
 
 **Example Response:**
 ```json
@@ -239,19 +283,15 @@ Returns an array of [Blog Objects](#blog-object).
     "_id": "507f1f77bcf86cd799439011",
     "title": "Getting Started with Astro",
     "slug": "getting-started-with-astro",
-    "content": "<p>Content here...</p>",
+    "shortDescription": "A comprehensive guide to building modern websites with Astro framework...",
     "datePublished": "2025-12-01T10:00:00.000Z",
-    "createdAt": "2025-11-30T08:00:00.000Z",
     "updatedAt": "2025-12-01T09:00:00.000Z",
-    "deletedAt": null,
     "tags": [
       {
         "_id": "507f1f77bcf86cd799439012",
         "name": "astro",
         "slug": "astro",
-        "createdAt": "2025-11-20T08:00:00.000Z",
-        "updatedAt": "2025-11-20T08:00:00.000Z",
-        "deletedAt": null
+        "updatedAt": "2025-11-20T08:00:00.000Z"
       }
     ],
     "author": {
@@ -284,7 +324,7 @@ Retrieve published blogs filtered by a specific tag sorted by their date of publ
 | `offset` | Integer | No | `0` | Number of items to skip. |
 
 **Response:**
-Returns an array of [Blog Objects](#blog-object) matching the tag.
+Returns an array of [Public Blog Objects](#public-blog-object) matching the tag **without the `content` field**. The `shortDescription` field is included for preview purposes.
 
 ### Get A Blog <a id="public-get-a-blog"></a>
 Retrieve a single blog post by its slug.
@@ -300,7 +340,7 @@ Retrieve a single blog post by its slug.
 | `blogSlug` | String | **Yes** | The unique slug name of the blog. |
 
 **Response:**
-Returns a single [Blog Object](#blog-object).
+Returns a complete [Public Blog Object](#public-blog-object) **including the full `content` and `shortDescription` fields**.
 
 ### Get All Tags <a id="public-get-all-tags"></a>
 Retrieve a paginated list of available tags sorted by their name.
@@ -382,7 +422,70 @@ Retrieve a list of all blogs including unpublished drafts, sorted by creation da
 | `published` | Boolean | No | `false` | Filter by publication status. |
 
 **Response:**
-Returns an array of [Blog Objects](#blog-object), including unpublished drafts.
+Returns an array of [Blog Objects](#blog-object), including unpublished drafts, with all admin fields.
+
+### Get All Blogs with Tag (Admin) <a id="private-get-all-blogs-with-tag"></a>
+Retrieve all blogs (published and unpublished) filtered by a specific tag.
+
+* **Endpoint:** `/api/private/blogs/tag/:tagSlug`
+* **Method:** `GET`
+* **Authentication:** Required (Admin only)
+* **Middleware:** `auth_middleware`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `tagSlug` | String | **Yes** | The unique slug of the tag to filter by. |
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `limit` | Integer | No | `10` | Number of items per page. |
+| `offset` | Integer | No | `0` | Number of items to skip. |
+| `published` | Boolean | No | `false` | Filter by publication status (true for published, false for unpublished). |
+
+**Response:**
+Returns an array of [Blog Objects](#blog-object) matching the tag, including unpublished drafts. The `content` field is excluded for performance (only included in single blog view).
+
+**Example Request:**
+```
+GET /api/private/blogs/tag/javascript?limit=10&offset=0&published=true
+```
+
+**Example Response:**
+```json
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "title": "Advanced JavaScript Patterns",
+    "slug": "advanced-javascript-patterns",
+    "shortDescription": "Deep dive into modern JavaScript design patterns...",
+    "datePublished": "2025-12-01T10:00:00.000Z",
+    "createdAt": "2025-11-28T08:00:00.000Z",
+    "updatedAt": "2025-12-01T09:00:00.000Z",
+    "deletedAt": null,
+    "tags": [
+      {
+        "_id": "507f1f77bcf86cd799439012",
+        "name": "javascript",
+        "slug": "javascript",
+        "createdAt": "2025-11-20T08:00:00.000Z",
+        "updatedAt": "2025-11-20T08:00:00.000Z",
+        "deletedAt": null
+      }
+    ],
+    "author": {
+      "_id": "507f1f77bcf86cd799439013",
+      "name": "John Doe",
+      "username": "johndoe"
+    }
+  }
+]
+```
+
+**Note:** This endpoint provides full admin visibility with `createdAt` and `deletedAt` fields for managing content. Private endpoints are never cached to ensure real-time data accuracy.
 
 ### Create A Blog <a id="private-create-a-blog"></a>
 Create a new blog post.
@@ -398,6 +501,7 @@ Create a new blog post.
 | :--- | :--- | :--- | :--- |
 | `title` | String | **Yes** | The title of the blog post. |
 | `content` | String | **Yes** | The content of the blog (HTML/Markdown). |
+| `shortDescription` | String | **Yes** | Brief summary (max 200 characters). |
 | `tagIds` | Array\<String\> | **Yes** | Array of tag IDs to associate with the blog. |
 | `datePublished` | String (ISO 8601) \| null | **Yes** | Publication date (null for drafts). |
 | `slug` | String | No | Custom slug (auto-generated from title if not provided). |
@@ -409,6 +513,7 @@ Create a new blog post.
 {
   "title": "Getting Started with Astro",
   "content": "<p>This is a comprehensive guide...</p>",
+  "shortDescription": "A comprehensive guide to building modern websites with Astro framework",
   "tagIds": ["507f1f77bcf86cd799439012", "507f1f77bcf86cd799439014"],
   "datePublished": "2025-12-05T10:00:00.000Z",
   "slug": "getting-started-with-astro"
@@ -439,14 +544,19 @@ All fields are optional. Only include fields you want to update.
 | :--- | :--- | :--- | :--- |
 | `title` | String | No | Updated title. |
 | `content` | String | No | Updated content (HTML/Markdown). |
+| `shortDescription` | String | No | Updated brief summary (max 200 characters). |
 | `tagIds` | Array\<String\> | No | Updated array of tag IDs. |
 | `datePublished` | String (ISO 8601) \| null | No | Updated publication date. |
 | `slug` | String | No | Updated slug. |
+
+**Validation:**
+- `shortDescription` must not exceed 200 characters (configurable via `SHORT_DESCRIPTION_MAX_LENGTH` environment variable).
 
 **Example Request:**
 ```json
 {
   "title": "Updated Title",
+  "shortDescription": "Updated summary for this blog post",
   "datePublished": null
 }
 ```
@@ -632,10 +742,30 @@ Or if slug is taken:
 
 ## Caching Strategy <a id="caching-strategy"></a>
 
-* **Scope:** Caching is applied **only** to Public Routes.
+### Overview
+* **Scope:** Caching is applied **only** to Public Endpoints (using `listPublicBlogs`, `getPublicBlogBySlug`, and `filterPublicBlogsByTag` service methods).
+* **Private Endpoints:** Admin routes (`listAdminBlogs`, `getAdminBlogBySlug`, `filterAdminBlogsByTag`) are **never cached** to ensure real-time data accuracy.
 * **Mechanism:** LRU (Least Recently Used) Cache with TTL.
 * **TTL:** 6 hours (configurable via `CACHE_EXPIRY_HOURS` environment variable).
 * **Max Cache Size:** 100 entries (configurable via `MAX_CACHE_SIZE` environment variable).
+
+### Architecture
+The caching layer uses a **split method approach** for clarity and type safety:
+
+**Public Methods (Cached):**
+- `listPublicBlogs()` → Returns `PublicBlogWithTags[]`
+- `getPublicBlogBySlug()` → Returns `PublicBlogWithTags | null`
+- `filterPublicBlogsByTag()` → Returns `PublicBlogWithTags[]`
+
+**Admin Methods (Not Cached):**
+- `listAdminBlogs()` → Returns `BlogWithTags[]`
+- `getAdminBlogBySlug()` → Returns `BlogWithTags | null`
+- `filterAdminBlogsByTag()` → Returns `BlogWithTags[]`
+
+This design ensures:
+1. **Type Safety:** Explicit return types prevent accidental exposure of admin fields
+2. **Clear Intent:** Method names clearly indicate whether data is cached
+3. **No Conditional Logic:** No need for `excludeAdminFields` boolean parameters
 
 ### Cache Keys
 
@@ -646,13 +776,15 @@ blogs:list:all:limit=${limit}:offset=${offset}
 
 **2. List View (Filtered by Tag):**
 ```text
-blogs:list=${tagSlug}:limit=${limit}:offset=${offset}
+blogs:list:${tagSlug}:limit=${limit}:offset=${offset}
 ```
 
 **3. Single Blog View:**
 ```text
 blogs:slug:${slug}
 ```
+
+**Note:** Cache keys do **not** include a `published` parameter since only published blogs are cached. Unpublished/draft blogs are always fetched directly from the database.
 
 ### Invalidation Rules
 

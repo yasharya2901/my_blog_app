@@ -4,7 +4,7 @@ const { Types: MongooseTypes } = mongoose;
 import { getCachedBlogBySlug, getCachedBlogList, invalidateCache, resetCachedBlogBySlug, setCachedBlogBySlug, setCachedBlogList, type ListKeyParams } from "../cache/blogCache";
 import { BlogRepository } from "../repositories/BlogRepository";
 import { TagRepository } from "../repositories/TagRepository";
-import type { BlogUpdateInput, BlogWithTags } from "../types/Blog";
+import type { BlogUpdateInput, BlogWithTags, PublicBlogWithTags } from "../types/Blog";
 
 
 export class BlogService {
@@ -16,8 +16,7 @@ export class BlogService {
         this.tagRepo = tagRepo;
     }
 
-    async listBlogs(limit: number, offset: number, published: boolean): Promise<BlogWithTags[]> {
-
+    async listPublicBlogs(limit: number, offset: number, published: boolean, includeContent: boolean = true): Promise<PublicBlogWithTags[]> {
         const cacheKeyParams: ListKeyParams = {
             limit: limit,
             offset
@@ -27,56 +26,79 @@ export class BlogService {
         if (published) {
             cachedBlogs = getCachedBlogList(cacheKeyParams);
             if (!cachedBlogs) {
-                let blogs = await this.blogRepo.findAll(limit, offset, true);
-                setCachedBlogList(cacheKeyParams, blogs);
+                let blogs = await this.blogRepo.findPublicBlogs(limit, offset, true, includeContent);
+                setCachedBlogList(cacheKeyParams, blogs as any);
                 return blogs;
             }
-            return cachedBlogs;
+            return cachedBlogs as PublicBlogWithTags[];
         }
 
-        let allBlogs = await this.blogRepo.findAll(limit, offset, false);
-
-        return allBlogs;
+        // Should not cache unpublished blogs for public view
+        return await this.blogRepo.findPublicBlogs(limit, offset, false, includeContent);
     }
 
-    async getBlogBySlug(slug: string): Promise<BlogWithTags | null> {
+    async listAdminBlogs(limit: number, offset: number, published: boolean, includeContent: boolean = true): Promise<BlogWithTags[]> {
+        // Never cache admin/private blogs
+        return await this.blogRepo.findAdminBlogs(limit, offset, published, includeContent);
+    }
+
+    async getPublicBlogBySlug(slug: string): Promise<PublicBlogWithTags | null> {
         const cachedBlog = getCachedBlogBySlug(slug);
 
         if (!cachedBlog) {
-            let blog = await this.blogRepo.findBySlug(slug);
+            let blog = await this.blogRepo.findPublicBlogBySlug(slug);
             if (!blog) {
                 return null;
             }
-            setCachedBlogBySlug(slug, blog);
+            setCachedBlogBySlug(slug, blog as any);
             return blog;
         }
 
-        return cachedBlog;
+        return cachedBlog as PublicBlogWithTags;
     }
 
-    async filterBlogsByTag(tagSlug: string, limit: number, offset: number): Promise<BlogWithTags[]> {
-        const cacheKeyParams: ListKeyParams = {
-            limit,
-            offset,
-            tagSlug
+    async getAdminBlogBySlug(slug: string): Promise<BlogWithTags | null> {
+        // Don't use cache for admin views
+        return await this.blogRepo.findAdminBlogBySlug(slug);
+    }
+
+    async filterPublicBlogsByTag(tagSlug: string, limit: number, offset: number, includeContent: boolean = true, published: boolean = true): Promise<PublicBlogWithTags[]> {
+        // check if tag is correct
+        let tag = await this.tagRepo.findBySlug(tagSlug);
+        if (!tag) {
+            return [];
         }
 
-        let cachedBlogList = getCachedBlogList(cacheKeyParams);
-        if (!cachedBlogList) {
-            // check if tag is correct
-            let tag = await this.tagRepo.findBySlug(tagSlug);
-            if (!tag) {
-                return [];
+        // Only cache published blogs
+        if (published) {
+            const cacheKeyParams: ListKeyParams = {
+                limit,
+                offset,
+                tagSlug
             }
 
-            let blogLists = await this.blogRepo.findAll(limit, offset, true, [tag._id]);
-            setCachedBlogList(cacheKeyParams, blogLists);
-            return blogLists;
+            let cachedBlogList = getCachedBlogList(cacheKeyParams);
+            if (!cachedBlogList) {
+                let blogLists = await this.blogRepo.findPublicBlogs(limit, offset, published, includeContent, [tag._id]);
+                setCachedBlogList(cacheKeyParams, blogLists as any);
+                return blogLists;
+            }
+            return cachedBlogList as PublicBlogWithTags[];
         }
 
+        // For unpublished/private blogs, don't use cache
+        return await this.blogRepo.findPublicBlogs(limit, offset, published, includeContent, [tag._id]);
+    }
 
-        
-        return cachedBlogList;
+    async filterAdminBlogsByTag(tagSlug: string, limit: number, offset: number, includeContent: boolean = true, published: boolean = true): Promise<BlogWithTags[]> {
+        // check if tag is correct
+        let tag = await this.tagRepo.findBySlug(tagSlug);
+        if (!tag) {
+            return [];
+        }
+
+        // Never cache admin blogs
+        return await this.blogRepo.findAdminBlogs(limit, offset, published, includeContent, [tag._id]);
     }
 
     async generateBlogSlug(title: string): Promise<string> {
@@ -84,7 +106,7 @@ export class BlogService {
     }
 
     async verifySlug(slug: string): Promise<boolean> {
-        let existingBlog = await this.blogRepo.findBySlug(slug);
+        let existingBlog = await this.blogRepo.findAdminBlogBySlug(slug);
         return existingBlog ? false : true;
     }
     
@@ -101,6 +123,7 @@ export class BlogService {
         if (fields.title !== undefined) inputfields.title = fields.title;
         if (fields.slug !== undefined) inputfields.slug = fields.slug;
         if (fields.content !== undefined) inputfields.content = fields.content;
+        if (fields.shortDescription !== undefined) inputfields.shortDescription = fields.shortDescription;
         if (fields.datePublished !== undefined) inputfields.datePublished = fields.datePublished;
         
         if (fields.authorId !== undefined) {

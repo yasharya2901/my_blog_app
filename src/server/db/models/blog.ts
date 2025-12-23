@@ -35,6 +35,12 @@ const BlogSchema = new Schema<BlogDocument>(
             type: String,
             required: false,
         },
+        shortDescription: {
+            type: String,
+            required: false,
+            default: "",
+            trim: true,
+        },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

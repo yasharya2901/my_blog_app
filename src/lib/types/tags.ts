@@ -4,9 +4,9 @@ export type Tag = {
     _id: string;
     name: string;
     slug: string;
-    createdAt: string;
+    createdAt?: string;  // Optional - excluded in public endpoints
     updatedAt: string;
-    deletedAt: string;
+    deletedAt?: string;  // Optional - excluded in public endpoints
 }
 
 export type StrippedTag = Omit<Tag, "createdAt" | "updatedAt" | "deletedAt">

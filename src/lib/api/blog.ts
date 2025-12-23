@@ -21,6 +21,9 @@ export const privateBlogApi = {
         return apiClient<Blog[]>("/private/blogs", {method: "GET"}, {limit, offset, published});
     },
 
+    async getAllBlogsOfTag(tagSlug: string, limit: number, offset: number, published: boolean): Promise<Blog[]> {
+        return apiClient<Blog[]>(`/private/blogs/tag/${tagSlug}`, {method: "GET"}, {limit, offset, published});
+    },
 
     async createABlog(): Promise<Blog> {
         return apiClient<Blog>(`/private/blogs`, {method: "POST"});

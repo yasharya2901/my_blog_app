@@ -6,10 +6,11 @@ export type Blog = {
   title: string;
   slug: string;
   content: string;
+  shortDescription: string;
   datePublished: string;
-  createdAt: string;
+  createdAt?: string;  // Optional - excluded in public endpoints
   updatedAt: string;
-  deletedAt: string;
+  deletedAt?: string;  // Optional - excluded in public endpoints
   author: Pick<User, "_id" | "name" | "username">;
   tags: Tag[];
 };
