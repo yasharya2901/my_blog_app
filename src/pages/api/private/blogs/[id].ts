@@ -16,6 +16,34 @@ const blogService = getService(Service.blog) as BlogService;
 const authService = getService(Service.auth) as AuthService;
 const blogRepo = new BlogRepository();
 
+export const GET: APIRoute = async ({ request, params }) => {
+    try {
+        // Require admin authentication
+        await authService.requireAdminFromRequest(request);
+
+        const id = params.id;
+        if (!id) {
+            return error("Blog ID is required", StatusCodes.BAD_REQUEST);
+        }
+
+        const blog = await blogService.getAdminBlogById(id);
+
+        if (!blog) {
+            return error("Blog not found", StatusCodes.NOT_FOUND);
+        }
+
+        return json(blog, { status: StatusCodes.OK });
+    } catch (err: any) {
+        console.error("Error fetching blog: ", err);
+
+        if (err.message === "Authentication required" || err.message === "Admin access required" || err.message === "Invalid or expired token" || err.message === "User not found") {
+            return error(err.message, StatusCodes.FORBIDDEN);
+        }
+
+        return error("Internal Server Error", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+};
+
 export const PATCH: APIRoute = async ({ request, params }) => {
     try {
         // Require admin authentication

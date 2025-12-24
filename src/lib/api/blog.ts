@@ -29,6 +29,10 @@ export const privateBlogApi = {
         return apiClient<Blog>(`/private/blogs`, {method: "POST"});
     },
 
+    async getBlogById(id: string): Promise<Blog> {
+        return apiClient<Blog>(`/private/blogs/${id}`, {method: "GET"});
+    },
+
     async updateABlog(id: string, data: Partial<Omit<Blog, "_id" | "createdAt" | "deletedAt" | "updatedAt" | "author">>): Promise<Blog> {
         return apiClient<Blog>(`/private/blogs/${id}`, {
             method: "PATCH",

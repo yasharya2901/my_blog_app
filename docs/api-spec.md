@@ -20,6 +20,7 @@
 5. [Private Endpoints (Authenticated)](#private-endpoints)
     - [Get All Blogs (Admin)](#private-get-all-blogs)
     - [Get All Blogs with Tag (Admin)](#private-get-all-blogs-with-tag)
+    - [Get A Blog by ID (Admin)](#private-get-a-blog-by-id)
     - [Create A Blog](#private-create-a-blog)
     - [Update A Blog](#private-update-a-blog)
     - [Delete A Blog](#private-delete-a-blog)
@@ -522,6 +523,67 @@ Create a new blog post.
 
 **Response:**
 Returns the created [Blog Object](#blog-object).
+
+### Get A Blog by ID (Admin) <a id="private-get-a-blog-by-id"></a>
+Retrieve a single blog post by its ID with full admin details, including populated tags and author information.
+
+* **Endpoint:** `/api/private/blogs/:id`
+* **Method:** `GET`
+* **Authentication:** Required (Admin only)
+* **Middleware:** `auth_middleware`
+* **Cache:** Not cached (admin data)
+
+**Use Case:** This endpoint is particularly useful for fetching newly created blog posts. When a blog is initially created, it starts with a default title ("Untitled Blog") and has an empty/undefined `slug` field. Since the public blog endpoint requires a slug to fetch blog details, this ID-based endpoint is essential for accessing and editing blogs immediately after creation before a proper slug has been assigned.
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | String | **Yes** | The unique ID of the blog to retrieve. |
+
+**Example Request:**
+```bash
+GET /api/private/blogs/507f1f77bcf86cd799439011
+```
+
+**Response:**
+Returns the full [Blog Object](#blog-object) with populated tags and author.
+
+**Example Response:**
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "title": "Getting Started with Astro",
+  "slug": "getting-started-with-astro",
+  "content": "<p>This is a comprehensive guide...</p>",
+  "shortDescription": "A comprehensive guide to building modern websites with Astro framework",
+  "datePublished": "2025-12-05T10:00:00.000Z",
+  "createdAt": "2025-12-01T08:30:00.000Z",
+  "updatedAt": "2025-12-05T10:00:00.000Z",
+  "deletedAt": null,
+  "tags": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "name": "Astro",
+      "slug": "astro",
+      "createdAt": "2025-11-01T00:00:00.000Z",
+      "updatedAt": "2025-11-01T00:00:00.000Z",
+      "deletedAt": null
+    }
+  ],
+  "author": {
+    "_id": "507f1f77bcf86cd799439015",
+    "name": "John Doe",
+    "username": "johndoe"
+  }
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid blog ID format
+- `403 Forbidden` - Authentication required or not an admin
+- `404 Not Found` - Blog with specified ID does not exist
+- `500 Internal Server Error` - Server error
 
 ### Update A Blog <a id="private-update-a-blog"></a>
 Update an existing blog post. Only specified fields will be updated (partial update).

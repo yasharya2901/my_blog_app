@@ -1,4 +1,4 @@
-export default function AuthLoader() {
+function AuthLoader() {
   return (
     <>
       <style>{`
@@ -94,3 +94,5 @@ export default function AuthLoader() {
     </>
   );
 }
+
+export default AuthLoader

@@ -62,6 +62,11 @@ export class BlogService {
         return await this.blogRepo.findAdminBlogBySlug(slug);
     }
 
+    async getAdminBlogById(id: string): Promise<BlogWithTags | null> {
+        // Don't use cache for admin views
+        return await this.blogRepo.findAdminBlogById(id);
+    }
+
     async filterPublicBlogsByTag(tagSlug: string, limit: number, offset: number, includeContent: boolean = true, published: boolean = true): Promise<PublicBlogWithTags[]> {
         // check if tag is correct
         let tag = await this.tagRepo.findBySlug(tagSlug);

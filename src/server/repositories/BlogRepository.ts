@@ -45,6 +45,83 @@ export class BlogRepository {
         return this._findBySlug(slug, false) as Promise<BlogWithTags | null>;
     }
 
+    async findAdminBlogById(id: string): Promise<BlogWithTags | null> {
+        await this.ensureConnection();
+
+        if (!MongooseTypes.ObjectId.isValid(id)) return null;
+
+        const docs = await BlogModel.aggregate([
+            { $match: { _id: new MongooseTypes.ObjectId(id), deletedAt: null } },
+            { $limit: 1 },
+            {
+                $lookup: {
+                    from: "tags",
+                    localField: "tagIds",
+                    foreignField: "_id",
+                    as: "tags",
+                    pipeline: [
+                        { $match: { deletedAt: null } }
+                    ]
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "authorId",
+                    foreignField: "_id",
+                    as: "author",
+                    pipeline: [
+                        { $match: { deletedAt: null }},
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                username: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $unwind: { 
+                    path: "$author",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ]);
+
+        if (docs.length === 0) {
+            return null;
+        }
+
+        const doc = docs[0] as any;
+
+        return {
+            _id: doc._id.toString(),
+            title: doc.title,
+            slug: doc.slug,
+            content: doc.content,
+            shortDescription: doc.shortDescription,
+            datePublished: doc.datePublished ?? null,
+            createdAt: doc.createdAt.toISOString(),
+            updatedAt: doc.updatedAt.toISOString(),
+            deletedAt: doc.deletedAt ? doc.deletedAt.toISOString() : null,
+            tags: (doc.tags || []).map((t: any) => ({
+                _id: t._id.toString(),
+                name: t.name,
+                slug: t.slug,
+                createdAt: t.createdAt.toISOString(),
+                updatedAt: t.updatedAt.toISOString(),
+                deletedAt: t.deletedAt ? t.deletedAt.toISOString() : null,
+            })),
+            author: doc.author ? {
+                _id: doc.author._id.toString(),
+                name: doc.author.name,
+                username: doc.author.username,
+            } : null
+        } as BlogWithTags;
+    }
+
     private async _findBySlug(slug: Blog["slug"], excludeAdminFields: boolean): Promise<BlogWithTags | PublicBlogWithTags | null> {
         await this.ensureConnection();
         const match: any = {slug: slug, deletedAt: null}
