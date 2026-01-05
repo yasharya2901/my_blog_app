@@ -150,7 +150,7 @@ export default function MarkdownEditor({ initialContent, onContentChange, readOn
         {/* Toolbar */}
         <div className="border-b border-gray-800 p-3 flex justify-between items-center">
           <div>
-            <label htmlFor="image-upload" className={`px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded flex items-center gap-2 text-sm transition-colors cursor-pointer inline-flex ${uploading || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <label htmlFor="image-upload" className={`px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded flex items-center gap-2 text-sm transition-colors cursor-pointer ${uploading || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <FaImage /> {uploading ? 'Processing...' : 'Upload Image (Base64)'}
             </label>
             <input
