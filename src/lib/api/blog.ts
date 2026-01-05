@@ -34,9 +34,12 @@ export const privateBlogApi = {
     },
 
     async updateABlog(id: string, data: Partial<Omit<Blog, "_id" | "createdAt" | "deletedAt" | "updatedAt" | "author">>): Promise<Blog> {
+        const tagIds = data.tags?.map((tag) => tag._id);
+
+        let req: typeof data & { tagIds?: string[] } = {...data, tagIds: tagIds};
         return apiClient<Blog>(`/private/blogs/${id}`, {
             method: "PATCH",
-            body: JSON.stringify(data)
+            body: JSON.stringify(req)
         });
     },
 

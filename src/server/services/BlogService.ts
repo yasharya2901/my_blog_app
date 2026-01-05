@@ -107,6 +107,7 @@ export class BlogService {
     }
 
     async generateBlogSlug(title: string): Promise<string> {
+        // TODO: Verify if slug exists and also add numbers at last until the slug is avaiable
         return await this.blogRepo.slugify(title);
     }
 

@@ -7,7 +7,7 @@ export type Blog = {
   slug: string;
   content: string;
   shortDescription: string;
-  datePublished: string;
+  datePublished?: string | null;
   createdAt?: string;  // Optional - excluded in public endpoints
   updatedAt: string;
   deletedAt?: string;  // Optional - excluded in public endpoints
