@@ -17,7 +17,6 @@ export default function MarkdownEditor({ initialContent, onContentChange, readOn
   const [images, setImages] = useState<Record<string, string>>({});
   const [imageCounter, setImageCounter] = useState(0);
 
-  const [saving, setSaving] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [uploading, setUploading] = useState(false);
 

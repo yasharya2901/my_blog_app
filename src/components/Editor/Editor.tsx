@@ -10,6 +10,8 @@ import { IoClose } from "react-icons/io5";
 import toast from "react-hot-toast";
 import RouteError from "../ErrorPages/RouteError";
 
+const SHORT_DESCRIPTION_MAX_LENGTH = 200;
+
 function Editors({ blogId }: { blogId: string }) {
 
     const [blog, setBlog] = useState<Blog | null>(null);
@@ -46,6 +48,11 @@ function Editors({ blogId }: { blogId: string }) {
     const handleSave = async () => {
         if (!blog) return;
         
+        if (blog.shortDescription.length > SHORT_DESCRIPTION_MAX_LENGTH) {
+            toast.error(`Short description is too long (max ${SHORT_DESCRIPTION_MAX_LENGTH} characters)`);
+            return;
+        }
+
         setSaving(true);
         
         // Replace placeholders with full base64 images
@@ -202,9 +209,14 @@ function Editors({ blogId }: { blogId: string }) {
 
             {/* Short Description */}
             <div className="mb-8">
-                <label className="text-gray-400 text-sm font-medium mb-2 block">Short Description</label>
+                <div className="flex justify-between mb-2">
+                    <label className="text-gray-400 text-sm font-medium">Short Description</label>
+                    <span className={`text-xs ${blog.shortDescription.length > SHORT_DESCRIPTION_MAX_LENGTH ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
+                        {blog.shortDescription.length} / {SHORT_DESCRIPTION_MAX_LENGTH}
+                    </span>
+                </div>
                 <input 
-                    className="bg-[#171717] border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-[#4ADE80] focus:outline-none focus:ring-1 focus:ring-[#4ADE80] transition-all duration-300 w-full"
+                    className={`bg-[#171717] border ${blog.shortDescription.length > SHORT_DESCRIPTION_MAX_LENGTH ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-700 focus:border-[#4ADE80] focus:ring-[#4ADE80]'} text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full`}
                     type="text" 
                     name="ShortDescription" 
                     value={blog.shortDescription} 

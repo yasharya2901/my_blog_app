@@ -1,13 +1,12 @@
 import { FaLock, FaSpinner, FaUser } from "react-icons/fa6";
 import React, { useEffect, type JSX } from "react";
-import { authApi } from "../../lib/api/auth";
 import { isEmail } from "../../lib/utils/email-checker";
 import toast from "react-hot-toast";
 import type { LoginRequest } from "../../lib/types/user";
 import { useStore } from "@nanostores/react";
 import { $authLoading, $user, login } from "../../lib/stores/auth";
 
-function LoginForm(): JSX.Element {
+function LoginForm() {
 
   const user = useStore($user);
   const authLoading = useStore($authLoading);
