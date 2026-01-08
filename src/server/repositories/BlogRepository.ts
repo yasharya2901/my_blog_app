@@ -27,6 +27,19 @@ export class BlogRepository {
         await getDbConnection();
     }
 
+    async findBlogCount(includePublished: boolean): Promise<number> {
+        await this.ensureConnection();
+
+        const match: any = { deletedAt: null };
+
+        if (includePublished) {
+            match.datePublished = { $ne: null, $lte: new Date() };
+        }
+
+        const docCount = await BlogModel.countDocuments(match);
+        return docCount;
+    }
+
     async findById(id: string): Promise<Blog | null> {
         await this.ensureConnection();
 
@@ -125,6 +138,12 @@ export class BlogRepository {
     private async _findBySlug(slug: Blog["slug"], excludeAdminFields: boolean): Promise<BlogWithTags | PublicBlogWithTags | null> {
         await this.ensureConnection();
         const match: any = {slug: slug, deletedAt: null}
+
+        // If public view, ensure blog is published
+        if (excludeAdminFields) {
+            match.datePublished = { $ne: null, $lte: new Date() };
+        }
+
         const docs = await BlogModel.aggregate([
             {$match: match},
             { $limit: 1 },
@@ -279,6 +298,10 @@ export class BlogRepository {
 
         if (onlyPublished) {
             match.datePublished = { $ne: null};
+            // If public view, restrict to strictly published (past/present)
+            if (excludeAdminFields) {
+               match.datePublished.$lte = new Date();
+            }
         }
 
         if (tagIds && tagIds.length > 0) {

@@ -17,6 +17,7 @@
     - [Get All Blogs with Tag](#public-get-all-blogs-with-tag)
     - [Get A Blog](#public-get-a-blog)
     - [Get All Tags](#public-get-all-tags)
+    - [Get Blog Count](#public-get-blog-count)
 5. [Private Endpoints (Authenticated)](#private-endpoints)
     - [Get All Blogs (Admin)](#private-get-all-blogs)
     - [Get All Blogs with Tag (Admin)](#private-get-all-blogs-with-tag)
@@ -261,7 +262,7 @@ Clears the `auth_token` HTTP-only cookie.
 ## Public Endpoints
 
 ### Get All Blogs <a id="public-get-all-blogs"></a>
-Retrieve a paginated list of published blogs sorted by their date of publishing (most recent first).
+Retrieve a paginated list of published blogs sorted by their date of publishing (most recent first). Only blogs with a `datePublished` in the past or present are returned (scheduled future posts are hidden).
 
 * **Endpoint:** `/api/blogs`
 * **Method:** `GET`
@@ -305,7 +306,7 @@ Returns an array of [Public Blog Objects](#public-blog-object) **without the `co
 ```
 
 ### Get All Blogs with Tag <a id="public-get-all-blogs-with-tag"></a>
-Retrieve published blogs filtered by a specific tag sorted by their date of publishing (most recent first).
+Retrieve published blogs filtered by a specific tag sorted by their date of publishing (most recent first). Only blogs with a `datePublished` in the past or present are returned.
 
 * **Endpoint:** `/api/blogs/tag/:tagSlug`
 * **Method:** `GET`
@@ -328,7 +329,7 @@ Retrieve published blogs filtered by a specific tag sorted by their date of publ
 Returns an array of [Public Blog Objects](#public-blog-object) matching the tag **without the `content` field**. The `shortDescription` field is included for preview purposes.
 
 ### Get A Blog <a id="public-get-a-blog"></a>
-Retrieve a single blog post by its slug.
+Retrieve a single blog post by its slug. The blog must be published and its `datePublished` must be in the past or present.
 
 * **Endpoint:** `/api/blogs/:blogSlug`
 * **Method:** `GET`
@@ -397,6 +398,30 @@ Returns an object containing a paginated list of stripped-down tag objects and t
     }
   ],
   "total": 15
+}
+```
+
+### Get Blog Count <a id="public-get-blog-count"></a>
+Retrieve the total count of published blogs. Only counts blogs where `datePublished` is in the past or present.
+
+* **Endpoint:** `/api/blogs/count`
+* **Method:** `GET`
+* **Authentication:** None
+
+**Response:**
+Returns an object containing the total count of published blogs.
+
+**Response Schema:**
+```json
+{
+  "totalCount": "integer"
+}
+```
+
+**Example Response:**
+```json
+{
+  "totalCount": 42
 }
 ```
 

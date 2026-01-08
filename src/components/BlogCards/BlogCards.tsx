@@ -3,16 +3,17 @@ import type { Blog } from "../../lib/types/blog";
 import { getTagColor } from "../../lib/utils/tag-colors";
 
 type BlogCardProps = Omit<Blog, "content" | "updatedAt" | "createdAt" | "deletedAt"> & {
-    handleEdit: (id: string) => void;
-    handleDelete: (e: React.MouseEvent, id: string) => void;
+    allowEditAndDelete: boolean;
+    handleClick: (id: string) => void;
+    handleDelete?: (e: React.MouseEvent, id: string) => void;
 };
 
-function BlogCards({ _id, title, slug, shortDescription, datePublished, author, tags, handleEdit, handleDelete }: BlogCardProps) {
+function BlogCards({ _id, title, slug, shortDescription, datePublished, author, tags, allowEditAndDelete, handleClick, handleDelete }: BlogCardProps) {
     return (
         <div>
                 <div
-                    onClick={() => handleEdit(_id)}
-                    className="group relative bg-[#171717] rounded-xl border border-gray-800 p-6 hover:border-[#4ADE80]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-[#4ADE80]/10 hover:-translate-y-1 cursor-pointer flex flex-col h-full"
+                    onClick={() => handleClick(_id)}
+                    className="group relative bg-[#171717] rounded-xl border border-gray-800 p-6 hover:border-[#4ADE80]/50 transition-all duration-300 hover:shadow-2xl hover:shadow-[#4ADE80]/10 hover:-translate-y-1 cursor-pointer flex flex-col h-full min-h-64"
                 >
                     {/* Card Header: All Tags + Date */}
                     <div className="flex justify-between items-start mb-4 gap-4">
@@ -58,29 +59,31 @@ function BlogCards({ _id, title, slug, shortDescription, datePublished, author, 
                             </div>
                             <span className="text-xs text-gray-300">By {author.name}</span>
                         </div>
-                        
-                        <div className="flex gap-2">
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEdit(_id);
-                                }}
-                                className="p-2 text-gray-500 hover:text-white hover:bg-gray-700 rounded-full transition-all duration-300"
-                                title="Edit"
-                            >
-                                <FaPen className="text-xs" />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(e, _id);
-                                }}
-                                className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all duration-300 z-10"
-                                title="Delete"
-                            >
-                                <FaTrash className="text-xs" />
-                            </button>
-                        </div>
+
+                        {allowEditAndDelete && handleDelete &&
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleClick(_id);
+                                    }}
+                                    className="p-2 text-gray-500 hover:text-white hover:bg-gray-700 rounded-full transition-all duration-300"
+                                    title="Edit"
+                                >
+                                    <FaPen className="text-xs" />
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(e, _id);
+                                    }}
+                                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all duration-300 z-10"
+                                    title="Delete"
+                                >
+                                    <FaTrash className="text-xs" />
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

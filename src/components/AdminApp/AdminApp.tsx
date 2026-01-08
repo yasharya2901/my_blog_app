@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { redirectPage } from "@nanostores/router";
 import Editors from "../Editor/Editor";
 import RouteError from "../ErrorPages/RouteError";
+import Preview from "../Editor/Preview";
 
 
 function AdminApp() {
@@ -28,6 +29,13 @@ function AdminApp() {
                 return;
             }
             return <Editors blogId={page.params.blogId} />
+
+        case "preview":
+            if (!page.params.blogId) {
+                redirectPage($router, "dashboard");
+                return;
+            }
+            return <Preview blogId={page.params.blogId}/>
 
         default:
             return <RouteError/>

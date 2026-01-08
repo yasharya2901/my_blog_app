@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { $authLoading, $user, logout } from '../../lib/stores/auth'
 import { useStore } from '@nanostores/react';
-import AuthLoader from '../AuthLoader/AuthLoader';
+import AuthLoader from '../Loader/AuthLoader';
 import { FaChevronDown, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { CiLogout } from 'react-icons/ci';
 import { type StrippedTag } from '../../lib/types/tags';
@@ -308,7 +308,8 @@ function Dashboard() {
                         tags={blog.tags}
                         title={blog.title}
                         key={blog._id}
-                        handleEdit={() => $router.open(`/editor/${blog._id}`)}
+                        allowEditAndDelete={true}
+                        handleClick={() => $router.open(`/editor/${blog._id}`)}
                         handleDelete={(e) => {handleDelete(e, blog._id)}}
                     />)
                 })}

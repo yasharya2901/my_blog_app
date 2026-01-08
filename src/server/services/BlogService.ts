@@ -16,6 +16,10 @@ export class BlogService {
         this.tagRepo = tagRepo;
     }
 
+    async getBlogCount(includePublished: boolean): Promise<number> {
+        return await this.blogRepo.findBlogCount(includePublished);
+    }
+
     async listPublicBlogs(limit: number, offset: number, published: boolean, includeContent: boolean = true): Promise<PublicBlogWithTags[]> {
         const cacheKeyParams: ListKeyParams = {
             limit: limit,

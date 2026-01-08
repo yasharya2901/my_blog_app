@@ -4,11 +4,12 @@ import { privateTagApi } from "../../lib/api/tag";
 import type { Blog } from "../../lib/types/blog";
 import type { Tag } from "../../lib/types/tags";
 import MarkdownEditor from "./MarkdownEditor";
-import { FaArrowLeft, FaCheck, FaFloppyDisk, FaRotate, FaPlus } from "react-icons/fa6";
+import { FaArrowLeft, FaCheck, FaFloppyDisk, FaRotate, FaPlus, FaEye } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 
 import toast from "react-hot-toast";
 import RouteError from "../ErrorPages/RouteError";
+import BlogLoader from "../Loader/BlogLoader";
 
 const SHORT_DESCRIPTION_MAX_LENGTH = 200;
 
@@ -152,7 +153,11 @@ function Editors({ blogId }: { blogId: string }) {
     }, [])
 
     if (loading) {
-        return <div className="max-w-5xl mx-auto px-4 py-8 text-center text-gray-400">Loading...</div>
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <BlogLoader />
+            </div>
+        );
     }
 
     if (!blog) {
@@ -308,7 +313,14 @@ function Editors({ blogId }: { blogId: string }) {
             </div>
 
             {/* Save Button */}
-            <div className="mt-8 flex justify-end sticky bottom-8 z-10">
+            <div className="mt-8 flex justify-end gap-4 sticky bottom-8 z-10">
+                <button 
+                    onClick={() => window.open(`/preview/${blogId}`, '_blank')}
+                    className="group flex items-center gap-2 px-6 py-3 bg-[#171717] border-2 border-[#60A5FA] rounded-lg text-white hover:bg-[#60A5FA] hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(96,165,250,0.1)] hover:shadow-[0_0_25px_rgba(96,165,250,0.4)] font-bold"
+                >
+                    <FaEye className="group-hover:scale-110 transition-transform"/>
+                    <span>Show Public Preview</span>
+                </button>
                 <button 
                     onClick={handleSave}
                     disabled={saving}

@@ -22,7 +22,13 @@ function buildQueryParams(params?: Record<string, any>): string {
 
 async function apiClient<T>(endpoint: string, options?: RequestInit, queryParams?: Record<string, any>): Promise<T> {
     const qs = buildQueryParams(queryParams);
-    const url = `/api${endpoint}${qs ? `?${qs}`: ""}`
+    let url = `/api${endpoint}${qs ? `?${qs}`: ""}`
+
+    if (import.meta.env.SSR) {
+        const baseUrl = import.meta.env.PUBLIC_API_URL ?? "http://localhost:4321";
+        url = new URL(url, baseUrl).toString();
+    }
+
     const response = await fetch(url, {
         headers: {
             'Content-Type': 'application/json',

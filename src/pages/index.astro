@@ -1,10 +1,27 @@
 ---
 import "../styles/global.css";
 import App from "../layout/app.astro";
+import HomePage from "../components/HomePage/HomePage";
+import { blogApi } from "../lib/api/blog";
+import type { Blog } from "../lib/types/blog";
+
+
+const MAX_HOMEPAGE_BLOG_COUNT = 9
+let blogs: Blog[] | undefined;
+let blogCount: number | undefined;
+
+let blogPromise = blogApi.getAllBlogs(MAX_HOMEPAGE_BLOG_COUNT, 0);
+let blogCountPromise = blogApi.getBlogCount();
+
+try {
+	let [blogResp, blogCountResp] = await Promise.all([blogPromise, blogCountPromise]);
+	blogs = blogResp;
+	blogCount = blogCountResp.totalCount;
+} catch (error) {
+	console.error(error)
+}
 ---
 
 <App>
-	Welcome to my main page
-	<br>
-	<a href="/login">Login</a>
+	<HomePage blogs={blogs ? blogs : []} blogLimit={MAX_HOMEPAGE_BLOG_COUNT} totalBlogs={blogCount} client:load/>
 </App>

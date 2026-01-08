@@ -14,6 +14,10 @@ export const blogApi = {
     async getABlogUsingSlug(blogSlug: string): Promise<Blog> {
         return apiClient<Blog>(`/blogs/${blogSlug}`, {method: "GET"});
     },
+
+    async getBlogCount(): Promise<{totalCount: number}> {
+        return apiClient<{totalCount: number}>(`/blogs/count`, {method: "GET"});
+    }
 }
 
 export const privateBlogApi = {
