@@ -25,7 +25,12 @@ async function apiClient<T>(endpoint: string, options?: RequestInit, queryParams
     let url = `/api${endpoint}${qs ? `?${qs}`: ""}`
 
     if (import.meta.env.SSR) {
-        const baseUrl = import.meta.env.PUBLIC_API_URL ?? "http://localhost:4321";
+        // In production (Vercel), use the deployment URL from env or request
+        // Fallback to localhost only for local development
+        const baseUrl = import.meta.env.PUBLIC_API_URL || 
+                       (typeof process !== 'undefined' && process.env.VERCEL_URL 
+                           ? `https://${process.env.VERCEL_URL}` 
+                           : "http://localhost:4321");
         url = new URL(url, baseUrl).toString();
     }
 
