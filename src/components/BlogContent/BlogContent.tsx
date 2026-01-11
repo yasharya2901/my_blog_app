@@ -51,6 +51,8 @@ export default function BlogContent({ slug, initialBlog = null }: BlogContentPro
     useEffect(() => {
         if (!blog) return;
 
+        document.title = blog.title
+
         // Tag click handlers
         const tagButtons = document.querySelectorAll('.tag-btn');
         tagButtons.forEach(btn => {
