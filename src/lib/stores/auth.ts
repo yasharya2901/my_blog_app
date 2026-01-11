@@ -23,6 +23,7 @@ export async function login(data: LoginRequest) {
     try {
         const user = await authApi.login(data);
         $user.set(user);
+        $authLoading.set(false);
         return user;
     } catch (error: any) {
         $user.set(null);

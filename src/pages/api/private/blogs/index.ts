@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ request }) => {
         const publishedParam = url.searchParams.get("published");
         const published = publishedParam === "true";
 
-        const blogs = await blogService.listBlogs(limit, offset, published);
+        const blogs = await blogService.listAdminBlogs(limit, offset, published);
         return json(blogs, { status: StatusCodes.OK });
     } catch (err: any) {
         console.error("Error fetching blogs (admin): ", err);

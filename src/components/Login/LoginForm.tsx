@@ -1,20 +1,20 @@
 import { FaLock, FaSpinner, FaUser } from "react-icons/fa6";
 import React, { useEffect, type JSX } from "react";
-import { authApi } from "../../lib/api/auth";
 import { isEmail } from "../../lib/utils/email-checker";
 import toast from "react-hot-toast";
 import type { LoginRequest } from "../../lib/types/user";
 import { useStore } from "@nanostores/react";
 import { $authLoading, $user, login } from "../../lib/stores/auth";
 
-function LoginForm(): JSX.Element {
+function LoginForm() {
 
   const user = useStore($user);
   const authLoading = useStore($authLoading);
 
   useEffect(() => {
     if (!authLoading && user) {
-      window.location.href = "/dashboard"
+      sessionStorage.setItem("from_login_redirect", "true");
+      window.location.href = "/dashboard";
     }
   }, [authLoading, user]);
 
@@ -34,8 +34,7 @@ function LoginForm(): JSX.Element {
 
     try {
         setLoading(true);
-        const user = await login(data);
-        console.log(user);
+        await login(data);
     } catch (error: any) {
         toast.error(error?.message);
         setLoading(false);

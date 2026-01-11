@@ -19,7 +19,6 @@ export type ListKeyParams = {
 }
 
 export function buildListKey(params: ListKeyParams): string {
-    
     return `blogs:list:${params.tagSlug ?? "all"}:limit=${params.limit}:offset=${params.offset}`;
 }
 
