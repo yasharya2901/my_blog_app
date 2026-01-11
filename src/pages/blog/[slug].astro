@@ -7,7 +7,9 @@ import { getTagColor } from "../../lib/utils/tag-colors";
 import { FaCalendarDays, FaUser, FaXTwitter, FaInstagram, FaWhatsapp, FaSignalMessenger } from "react-icons/fa6";
 
 const { slug } = Astro.params;
-if (!slug) return;
+if (!slug) {
+    return Astro.redirect("/");
+}
 
 let blog;
 let blogHtml = "";
@@ -15,7 +17,12 @@ try {
     blog = await blogApi.getABlogUsingSlug(slug);
     blogHtml = await marked.parse(blog.content);
 } catch (error) {
-    console.error("Something Went Wrong: ", error);
+    console.error("Blog not found:", error);
+    // Return 404 status for non-existent blogs
+    return new Response(null, {
+        status: 404,
+        statusText: 'Not Found'
+    });
 }
 
 // Helper to extract border color from getTagColor result
