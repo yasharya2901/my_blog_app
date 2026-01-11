@@ -15,7 +15,7 @@ try {
     blog = await blogApi.getABlogUsingSlug(slug);
     blogHtml = await marked.parse(blog.content);
 } catch (error) {
-    console.error("Something Went Wrong");
+    console.error("Something Went Wrong: ", error);
 }
 
 // Helper to extract border color from getTagColor result
