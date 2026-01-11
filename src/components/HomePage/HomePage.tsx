@@ -7,7 +7,7 @@ import BlogCards from "../BlogCards/BlogCards";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const STORAGE_KEY = 'blog_session_cache';
-const CACHE_TTL = 1000 * 60 * 1; // 5 minutes
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
 
 interface BlogCache {
     blogs: Blog[];

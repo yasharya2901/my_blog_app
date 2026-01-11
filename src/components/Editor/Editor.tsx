@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { blogApi, privateBlogApi } from "../../lib/api/blog";
+import { privateBlogApi } from "../../lib/api/blog";
 import { privateTagApi } from "../../lib/api/tag";
 import type { Blog } from "../../lib/types/blog";
 import type { Tag } from "../../lib/types/tags";
@@ -280,12 +280,6 @@ function Editors({ blogId }: { blogId: string }) {
                         ))}
                     </div>
                 )}
-            </div>
-            {/* Tags */}
-
-            <div>
-                <label>Tags</label>
-
             </div>
 
             {/* Markdown Editor Component */}
