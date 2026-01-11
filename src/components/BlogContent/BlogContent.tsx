@@ -5,6 +5,7 @@ import { blogApi } from "../../lib/api/blog";
 import type { Blog } from "../../lib/types/blog";
 import { FaCalendarDays, FaUser, FaXTwitter, FaInstagram, FaWhatsapp, FaSignalMessenger } from "react-icons/fa6";
 import RouteError from "../ErrorPages/RouteError";
+import BlogLoader from "../Loader/BlogLoader";
 
 interface BlogContentProps {
     slug: string;
@@ -153,8 +154,8 @@ export default function BlogContent({ slug, initialBlog = null }: BlogContentPro
 
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-                <div className="text-[#4ADE80] text-xl">Loading...</div>
+            <div className="flex justify-center items-center min-h-screen">
+                <BlogLoader/>
             </div>
         );
     }
